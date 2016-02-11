@@ -22,5 +22,18 @@
   "bugs": {
     "url": "https://github.com/interledger/five-bells-integration-test/issues"
   },
-  "homepage": "https://github.com/interledger/five-bells-integration-test#readme"
+  "homepage": "https://github.com/interledger/five-bells-integration-test#readme",
+  "devDependencies": {
+    "cz-conventional-changelog": "^1.1.5",
+    "ghooks": "^1.0.3",
+    "validate-commit-msg": "^2.0.0"
+  },
+  "config": {
+    "ghooks": {
+      "commit-msg": "validate-commit-msg"
+    },
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
 }
