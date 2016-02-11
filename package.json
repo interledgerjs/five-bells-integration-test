@@ -7,7 +7,7 @@
     "integration": "src/index.js"
   },
   "scripts": {
-    "test": "integration test",
+    "test": "node src/index.js test",
     "lint": "eslint ."
   },
   "repository": {
