@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "description": "A module to help with testing Five Bells components against each other",
   "main": "index.js",
+  "bin": {
+    "integration": "index.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint ."
