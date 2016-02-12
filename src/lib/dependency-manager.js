@@ -1,9 +1,17 @@
 'use strict'
 
+const Promise = require('bluebird')
 const fs = require('fs')
 const path = require('path')
 const exec = require('promised-exec')
-const spawn = require('child_process').spawn
+const fetch = require('node-fetch')
+const spawn = require('../util').spawn
+
+const DEFAULT_DEPENDENCIES = {
+  'five-bells-ledger': '*',
+  'five-bells-connector': '*',
+  'five-bells-sender': '*'
+}
 
 class DependencyManager {
   constructor () {
@@ -27,6 +35,33 @@ class DependencyManager {
   }
 
   /**
+   * Determine the branch being tested.
+   *
+   * If a local copy or the master branch is being tested, this method returns
+   * null.
+   *
+   * @return {String|null} Branch under test
+   */
+  getBranchNameUnderTest () {
+    const branch = process.env.CIRCLE_BRANCH
+    if (typeof branch !== 'string') return null
+    else if (branch === 'master') return null
+    else return branch
+  }
+
+  /**
+   * Check if the branch under test exists for a given Five Bells dependency.
+   *
+   * @return {Promise<Boolean>} true if the branch exists, false otherwise
+   */
+  checkForBranchOnDependency (dependency) {
+    const branch = this.getBranchNameUnderTest()
+    if (!branch) return false
+    const url = `https://github.com/interledger/${dependency}/tree/${branch}`
+    return fetch(url).then((response) => response.status === 200)
+  }
+
+  /**
    * Return the package.json string with the correct testing dependencies.
    *
    * This function will calculate the correct dependencies for the integration
@@ -35,19 +70,20 @@ class DependencyManager {
    *
    * @return {String} stringified package.json
    */
-  generateDummyPackageJSON () {
+  generateDummyPackageJSON (dependencyOverrides) {
+    const moduleUnderTestDependency = {
+      // Local module is in the parent directory
+      [this.getHostModuleName()]: 'file:../'
+    }
+
     const packageDescriptor = {
       name: 'five-bells-integration-test-instance',
       private: true,
-      dependencies: Object.assign({
-        // Default dependencies
-        'five-bells-ledger': '*',
-        'five-bells-connector': '*',
-        'five-bells-sender': '*'
-      }, {
-        // Use local host module
-        [this.getHostModuleName()]: 'file:../'
-      })
+      dependencies: Object.assign(
+        DEFAULT_DEPENDENCIES,
+        dependencyOverrides,
+        moduleUnderTestDependency
+      )
     }
     return JSON.stringify(packageDescriptor, null, 2)
   }
@@ -64,34 +100,25 @@ class DependencyManager {
     fs.mkdirSync(this.testDir)
     process.chdir(this.testDir)
 
+    // Calculate dependency overrides based on git branches with same name
+    const dependenciesToOverride = (yield Promise.filter(
+      Object.keys(DEFAULT_DEPENDENCIES),
+      this.checkForBranchOnDependency.bind(this)
+    ))
+    const dependencyOverrides = {}
+    const branch = this.getBranchNameUnderTest()
+    for (let dependency of dependenciesToOverride) {
+      dependencyOverrides[dependency] = `interledger/${dependency}#${branch}`
+    }
+
     // Create package.json
     const dummyPackageJSONPath = path.resolve(this.testDir, 'package.json')
-    fs.writeFileSync(dummyPackageJSONPath, this.generateDummyPackageJSON())
+    const dummyPackageJSON = this.generateDummyPackageJSON(dependencyOverrides)
+    fs.writeFileSync(dummyPackageJSONPath, dummyPackageJSON)
 
     // Install dependencies
     console.log('Installing dependencies:')
-    yield this.spawn('npm', ['install'])
-  }
-
-  /**
-   * Utility function for spawning processes.
-   *
-   * Spawns a child process and returns a promise that rejects on errors and
-   * resolves when the child process exists. All output is redirected to the
-   * host processes' stdio by default.
-   *
-   * For documentation on the parameters, please see Node's docs:
-   * https://nodejs.org/api/child_process.html
-   *
-   * @return {Promise<Number>} Promise of the exit code of the process.
-   */
-  spawn (cmd, args, opts) {
-    return new Promise((resolve, reject) => {
-      opts = Object.assign({ stdio: 'inherit' }, opts)
-      const proc = spawn(cmd, args, opts)
-      proc.on('error', reject)
-      proc.on('exit', resolve)
-    })
+    yield spawn('npm', ['install'])
   }
 }
 
