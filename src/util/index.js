@@ -1,4 +1,7 @@
+'use strict'
 const childProcess = require('child_process')
+const Promise = require('bluebird')
+const waitOn = require('wait-on')
 
 /**
  * Utility function for spawning processes.
@@ -14,13 +17,32 @@ const childProcess = require('child_process')
  */
 function spawn (cmd, args, opts) {
   return new Promise((resolve, reject) => {
-    opts = Object.assign({ stdio: 'inherit' }, opts)
     const proc = childProcess.spawn(cmd, args, opts)
     proc.on('error', reject)
     proc.on('exit', resolve)
   })
 }
 
+/**
+ * Utility function for spawning processes.
+ *
+ * @return {Promise<ChildProcess>} Promise of the exit code of the process.
+ */
+function spawnAndWait (cmd, args, opts, waitFor) {
+  return new Promise((resolve, reject) => {
+    const proc = childProcess.spawn(cmd, args, opts)
+    proc.on('error', reject)
+    if (typeof waitFor === 'string') {
+      waitFor = { resources: [waitFor] }
+    }
+    waitOn(waitFor, function (err) {
+      if (err) return reject(err)
+      resolve(proc)
+    })
+  })
+}
+
 module.exports = {
-  spawn
+  spawn,
+  spawnAndWait
 }
