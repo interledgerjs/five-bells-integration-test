@@ -1,10 +1,11 @@
 machine:
   node:
-    version: 5
+    version: 4.3.0
 test:
   pre:
     # Run linter
     - npm run lint
+    - npm test
 deployment:
   production:
     branch: master

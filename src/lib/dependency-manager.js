@@ -3,14 +3,15 @@
 const Promise = require('bluebird')
 const fs = require('fs')
 const path = require('path')
-const exec = require('promised-exec')
 const fetch = require('node-fetch')
 const spawn = require('../util').spawn
 
 const DEFAULT_DEPENDENCIES = {
-  'five-bells-ledger': '*',
-  'five-bells-connector': '*',
-  'five-bells-sender': '*'
+  'five-bells-ledger': 'interledger/five-bells-ledger#master',
+  'five-bells-connector': 'interledger/five-bells-connector#master',
+  'five-bells-notary': 'interledger/five-bells-notary#master',
+  'five-bells-sender': 'interledger/five-bells-sender#master',
+  'sqlite3': '~3.1.0'
 }
 
 class DependencyManager {
@@ -71,19 +72,19 @@ class DependencyManager {
    * @return {String} stringified package.json
    */
   generateDummyPackageJSON (dependencyOverrides) {
-    const moduleUnderTestDependency = {
-      // Local module is in the parent directory
-      [this.getHostModuleName()]: 'file:../'
-    }
-
     const packageDescriptor = {
       name: 'five-bells-integration-test-instance',
       private: true,
       dependencies: Object.assign(
         DEFAULT_DEPENDENCIES,
-        dependencyOverrides,
-        moduleUnderTestDependency
+        dependencyOverrides
       )
+    }
+
+    const hostModule = this.getHostModuleName()
+    if (packageDescriptor.dependencies[hostModule]) {
+      // Local module is in the parent directory
+      packageDescriptor.dependencies[hostModule] = 'file:../'
     }
     return JSON.stringify(packageDescriptor, null, 2)
   }
@@ -96,7 +97,7 @@ class DependencyManager {
    */
   * install () {
     // Prepare test directory
-    yield exec('rm -rf ' + this.testDir)
+    yield spawn('rm', ['-rf', this.testDir])
     fs.mkdirSync(this.testDir)
     process.chdir(this.testDir)
 
@@ -118,7 +119,7 @@ class DependencyManager {
 
     // Install dependencies
     console.log('Installing dependencies:')
-    yield spawn('npm', ['install'])
+    yield spawn('npm', ['install'], {stdio: 'inherit'})
   }
 }
 

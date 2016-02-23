@@ -34,8 +34,6 @@ This is enabled by the following config in the `package.json`:
 
 The five-bells-integration-test module can be tested on its own:
 
-**TODO: Implement this!**
-
 ```sh
 npm install
 npm test

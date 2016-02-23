@@ -4,10 +4,10 @@
   "description": "A module to help with testing Five Bells components against each other",
   "main": "src/index.js",
   "bin": {
-    "integration": "src/index.js"
+    "integration": "src/bin/integration"
   },
   "scripts": {
-    "test": "node src/index.js test",
+    "test": "node ./src/bin/integration all",
     "lint": "eslint ."
   },
   "repository": {
@@ -47,7 +47,10 @@
   "dependencies": {
     "bluebird": "^3.3.0",
     "bluebird-co": "^2.1.2",
+    "co-mocha": "^1.1.2",
+    "mocha": "^2.4.5",
     "node-fetch": "^1.3.3",
-    "promised-exec": "^1.0.1"
+    "superagent": "^1.7.2",
+    "wait-on": "^1.3.1"
   }
 }

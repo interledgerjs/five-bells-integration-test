@@ -1,0 +1,37 @@
+#!/usr/bin/env node
+'use strict'
+
+const Promise = require('bluebird-co')
+const DependencyManager = require('../lib/dependency-manager')
+const spawn = require('../util').spawn
+const command = process.argv[2]
+const dependencies = new DependencyManager()
+const commands = ['all', 'setup', 'test']
+const mocha = __dirname + '/../../node_modules/.bin/mocha'
+
+function usage() {
+  console.error('usage: ' + process.argv[1] + ' <command>')
+  console.error('commands:')
+  console.error('  all    # setup then test')
+  console.error('  setup  # download five-bells services')
+  console.error('  test   # run integration tests')
+  process.exit(1)
+}
+
+if (commands.indexOf(command) === -1) usage()
+Promise.coroutine(function * () {
+  if (command === 'all' || command === 'setup') {
+    yield dependencies.install()
+  }
+  if (command === 'all' || command === 'test') {
+    yield spawn(mocha, [
+      __dirname + '/../tests/index.js',
+      '--no-timeouts',
+      '-r', 'co-mocha'
+    ], {
+      cwd: dependencies.testDir,
+      stdio: 'inherit'
+    })
+  }
+  process.exit(0)
+})().done()
