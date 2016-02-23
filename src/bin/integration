@@ -21,18 +21,19 @@ function usage() {
 
 if (commands.indexOf(command) === -1) usage()
 Promise.coroutine(function * () {
+  let code = 0
   if (command === 'all' || command === 'setup') {
-    yield dependencies.install()
+    code = code || (yield dependencies.install())
   }
   if (command === 'all' || command === 'test') {
-    yield spawn(mocha, [
+    code = code || (yield spawn(mocha, [
       __dirname + '/../tests/index.js',
       '--no-timeouts',
       '-r', 'co-mocha'
     ], {
       cwd: dependencies.testDir,
       stdio: 'inherit'
-    })
+    }))
   }
-  process.exit(0)
+  process.exit(code)
 })().done()

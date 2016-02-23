@@ -2,7 +2,7 @@ machine:
   node:
     version: 4.3.0
 test:
-  pre:
+  override:
     # Run linter
     - npm run lint
     - npm test
