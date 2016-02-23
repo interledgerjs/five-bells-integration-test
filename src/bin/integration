@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 'use strict'
 
+const path = require('path')
 const Promise = require('bluebird-co')
 const DependencyManager = require('../lib/dependency-manager')
 const spawn = require('../util').spawn
 const command = process.argv[2]
 const dependencies = new DependencyManager()
 const commands = ['all', 'setup', 'test']
-const mocha = __dirname + '/../../node_modules/.bin/mocha'
+const mocha = path.resolve(require.resolve('mocha'), '../bin/mocha')
 
 function usage() {
   console.error('usage: ' + process.argv[1] + ' <command>')
