@@ -30,8 +30,11 @@ function spawn (cmd, args, opts) {
  */
 function spawnAndWait (cmd, args, opts, waitFor) {
   return new Promise((resolve, reject) => {
-    const proc = childProcess.spawn(cmd, args, opts)
+    const proc = childProcess.spawn(cmd, args,
+      Object.assign({}, opts, {stdio: 'pipe'}))
     proc.on('error', reject)
+    proc.stdout.on('data', (data) => process.stdout.write(data.toString()))
+    proc.stderr.on('data', (data) => process.stderr.write(data.toString()))
     if (typeof waitFor === 'string') {
       waitFor = { resources: [waitFor] }
     }
