@@ -108,8 +108,8 @@ describe('send universal payment', function () {
     //  -   0.0001 USD (connector rounding in its favor)
     //  ==============
     //     94.9899 USD
-    yield assertBalance('http://localhost:3001', 'alice', '94.9899')
-    yield assertBalance('http://localhost:3001', 'mark', '1005.0101')
+    yield assertBalance('http://localhost:3001', 'alice', '94.99')
+    yield assertBalance('http://localhost:3001', 'mark', '1005.01')
 
     // Bob should have:
     //    100      USD
@@ -192,11 +192,11 @@ describe('send universal payment', function () {
     //  -   0.0001 USD (mark: connector rounding in its favor)
     //  ==============
     //     94.9899 USD
-    yield assertBalance('http://localhost:3001', 'alice', '94.9798')
-    yield assertBalance('http://localhost:3001', 'mark', '1005.0202')
+    yield assertBalance('http://localhost:3001', 'alice', '94.98')
+    yield assertBalance('http://localhost:3001', 'mark', '1005.02')
 
-    yield assertBalance('http://localhost:3002', 'mark', '994.9899')
-    yield assertBalance('http://localhost:3002', 'mary', '1005.0101')
+    yield assertBalance('http://localhost:3002', 'mark', '994.99')
+    yield assertBalance('http://localhost:3002', 'mary', '1005.01')
 
     // Carl should have:
     //    100      USD
@@ -227,8 +227,8 @@ describe('send atomic payment', function () {
     //  -   0.0001 USD (connector rounding in its favor)
     //  ==============
     //     94.9899 USD
-    yield assertBalance('http://localhost:3001', 'alice', '94.9899')
-    yield assertBalance('http://localhost:3001', 'mark', '1005.0101')
+    yield assertBalance('http://localhost:3001', 'alice', '94.99')
+    yield assertBalance('http://localhost:3001', 'mark', '1005.01')
 
     // Bob should have:
     //    100      USD
