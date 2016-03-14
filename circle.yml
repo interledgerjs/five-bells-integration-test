@@ -3,9 +3,8 @@ machine:
     version: 4.3.0
 test:
   override:
-    # Run linter
     - npm run lint
-    - npm test
+    - if git log -1 --pretty=%B | grep -q "[skip tests]"; then true; else npm test; fi
 deployment:
   production:
     branch: master
