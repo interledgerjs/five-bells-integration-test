@@ -51,7 +51,8 @@ class ServiceManager {
         LEDGER_HOSTNAME: 'localhost',
         LEDGER_PORT: port,
         LEDGER_ADMIN_USER: this.adminUser,
-        LEDGER_ADMIN_PASS: this.adminPass
+        LEDGER_ADMIN_PASS: this.adminPass,
+        LEDGER_AMOUNT_SCALE: '4'
       },
       cwd: path.resolve(this.testDir, 'node_modules/five-bells-ledger')
     }, 'http://localhost:' + port + '/health')
