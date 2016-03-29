@@ -81,7 +81,7 @@ class ServiceManager {
       env: {
         PATH: process.env.PATH,
         NOTARY_DB_URI: 'sqlite://' + dbPath,
-        NOTARY_RUN_MIGRATION: true,
+        NOTARY_DB_SYNC: true,
         NOTARY_HOSTNAME: 'localhost',
         NOTARY_PORT: port,
         NOTARY_ED25519_SECRET_KEY: options.secretKey,
