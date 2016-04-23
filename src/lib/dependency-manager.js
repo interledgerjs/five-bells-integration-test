@@ -11,6 +11,7 @@ const DEFAULT_DEPENDENCIES = {
   'five-bells-connector': 'interledger/five-bells-connector#master',
   'five-bells-notary': 'interledger/five-bells-notary#master',
   'five-bells-sender': 'interledger/five-bells-sender#master',
+  'five-bells-receiver': 'interledger/five-bells-receiver#master',
   'sqlite3': '~3.1.0'
 }
 
