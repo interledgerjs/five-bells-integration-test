@@ -4,8 +4,10 @@ const assert = require('assert')
 const Promise = require('bluebird')
 const ServiceManager = require('../lib/service-manager')
 
-const notarySecretKey = 'ZVx0mSsB4+pNdP2q0qq2wEyHKBtoiw2co05Db0sD2Ao6a6skoSHJHAhS5uCKkR8bCu/t3IqKI0jsd3tfbndMcQ=='
-const notaryPublicKey = 'OmurJKEhyRwIUubgipEfGwrv7dyKiiNI7Hd7X253THE='
+const notarySecretKey = 'lRmSmT/I2SS5I7+FnFgHbh8XZuu4NeL0wk8oN86L50U='
+const notaryPublicKey = '4QRmhUtrxlwQYaO+c8K2BtCd6c4D8HVmy5fLDSjsH6A='
+
+const receiverSecret = 'O8Y6+6bJgl2i285yCeC/Wigi6P6TJ4C78tdASqDOR9g='
 
 const services = new ServiceManager(process.cwd())
 
@@ -39,6 +41,21 @@ before(function * () {
   yield services.startNotary('notary1', 6001, {
     secretKey: notarySecretKey,
     publicKey: notaryPublicKey
+  })
+
+  // Receiver accounts have to exist before receiver is started
+  yield services.updateAccount('http://localhost:3002', 'bob', {balance: '100'})
+  yield services.updateAccount('http://localhost:3003', 'carl', {balance: '100'})
+
+  yield services.startReceiver(7001, {
+    secret: receiverSecret,
+    credentials: [{
+      account: 'http://localhost:3002/accounts/bob',
+      password: 'bob'
+    }, {
+      account: 'http://localhost:3003/accounts/carl',
+      password: 'carl'
+    }]
   })
 })
 
@@ -94,11 +111,14 @@ describe('checking balances', function () {
 
 describe('send universal payment', function () {
   it('transfers the funds (by destination amount)', function * () {
+    const receiverId = 'universal-0001'
     yield services.sendPayment({
       sourceAccount: 'http://localhost:3001/accounts/alice',
       sourcePassword: 'alice',
       destinationAccount: 'http://localhost:3002/accounts/bob',
-      destinationAmount: '5'
+      destinationAmount: '5',
+      receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
+      destinationMemo: { receiverId }
     })
     yield Promise.delay(2000)
     // Alice should have:
@@ -121,12 +141,15 @@ describe('send universal payment', function () {
     yield assertZeroHold()
   })
 
-  it('transfers the funds (by source amount', function * () {
+  it('transfers the funds (by source amount)', function * () {
+    const receiverId = 'universal-0002'
     yield services.sendPayment({
       sourceAccount: 'http://localhost:3001/accounts/alice',
       sourcePassword: 'alice',
       destinationAccount: 'http://localhost:3002/accounts/bob',
-      sourceAmount: '5'
+      sourceAmount: '5',
+      receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
+      destinationMemo: { receiverId }
     })
     yield Promise.delay(2000)
     // Alice should have:
@@ -149,13 +172,16 @@ describe('send universal payment', function () {
   })
 
   it('fails when there are insufficient source funds', function * () {
+    const receiverId = 'universal-0003'
     let err
     try {
       yield services.sendPayment({
         sourceAccount: 'http://localhost:3001/accounts/alice',
         sourcePassword: 'alice',
         destinationAccount: 'http://localhost:3002/accounts/bob',
-        destinationAmount: '500'
+        destinationAmount: '500',
+        receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
+        destinationMemo: { receiverId }
       })
     } catch (_err) { err = _err }
     assert.equal(err.status, 422)
@@ -175,11 +201,14 @@ describe('send universal payment', function () {
   })
 
   it('transfers a payment with 3 steps', function * () {
+    const receiverId = 'universal-0004'
     yield services.sendPayment({
       sourceAccount: 'http://localhost:3001/accounts/alice',
       sourcePassword: 'alice',
       destinationAccount: 'http://localhost:3003/accounts/carl',
-      destinationAmount: '5'
+      destinationAmount: '5',
+      receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
+      destinationMemo: { receiverId }
     })
     yield Promise.delay(2000)
 
@@ -211,13 +240,16 @@ describe('send universal payment', function () {
 
 describe('send atomic payment', function () {
   it('transfers the funds', function * () {
+    const receiverId = 'atomic-0001'
     yield services.sendPayment({
       sourceAccount: 'http://localhost:3001/accounts/alice',
       sourcePassword: 'alice',
       destinationAccount: 'http://localhost:3002/accounts/bob',
       destinationAmount: '5',
       notary: 'http://localhost:6001',
-      notaryPublicKey
+      notaryPublicKey,
+      receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
+      destinationMemo: { receiverId }
     })
     yield Promise.delay(2000)
     // Alice should have:

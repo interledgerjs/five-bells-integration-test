@@ -1,5 +1,7 @@
 'use strict'
 
+const crypto = require('crypto')
+const cc = require('five-bells-condition')
 const path = require('path')
 const Promise = require('bluebird-co')
 const request = require('superagent')
@@ -70,7 +72,8 @@ class ServiceManager {
         CONNECTOR_HOSTNAME: 'localhost',
         CONNECTOR_PORT: port,
         CONNECTOR_ADMIN_USER: this.adminUser,
-        CONNECTOR_ADMIN_PASS: this.adminPass
+        CONNECTOR_ADMIN_PASS: this.adminPass,
+        CONNECTOR_BACKEND: 'one-to-one'
       },
       cwd: path.resolve(this.testDir, 'node_modules/five-bells-connector')
     }, 'http://localhost:' + port + '/health')
@@ -89,6 +92,19 @@ class ServiceManager {
         NOTARY_ED25519_PUBLIC_KEY: options.publicKey
       },
       cwd: path.resolve(this.testDir, 'node_modules/five-bells-notary')
+    }, 'http://localhost:' + port + '/health')
+  }
+
+  startReceiver (port, options) {
+    return this._npm(['start'], {
+      env: {
+        PATH: process.env.PATH,
+        RECEIVER_PORT: port,
+        RECEIVER_HOSTNAME: 'localhost',
+        RECEIVER_SECRET: options.secret,
+        RECEIVER_CREDENTIALS: JSON.stringify(options.credentials || [])
+      },
+      cwd: path.resolve(this.testDir, 'node_modules/five-bells-receiver')
     }, 'http://localhost:' + port + '/health')
   }
 
@@ -128,6 +144,16 @@ class ServiceManager {
 
   getBalance (ledger, name, options) {
     return Promise.coroutine(this._getBalance.bind(this))(ledger, name, options || {})
+  }
+
+  createReceiptCondition (receiverSecret, receiverId) {
+    const secret = crypto
+      .createHmac('sha256', new Buffer(receiverSecret, 'base64'))
+      .update(receiverId)
+      .digest()
+    const condition = new cc.PreimageSha256()
+    condition.setPreimage(secret)
+    return condition.getConditionUri()
   }
 
   sendPayment (params) {
