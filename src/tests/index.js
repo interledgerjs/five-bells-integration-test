@@ -126,10 +126,11 @@ describe('send universal payment', function () {
     //  -   5      USD (sent to Bob)
     //  -   0.01   USD (connector spread/fee)
     //  -   0.0001 USD (connector rounding in its favor)
+    //  -   0.005  USD (mark: quoted connector slippage)
     //  ==============
-    //     94.9899 USD
-    yield assertBalance('http://localhost:3001', 'alice', '94.99')
-    yield assertBalance('http://localhost:3001', 'mark', '1005.01')
+    //     94.9849 USD
+    yield assertBalance('http://localhost:3001', 'alice', '94.9849')
+    yield assertBalance('http://localhost:3001', 'mark', '1005.0151')
 
     // Bob should have:
     //    100      USD
@@ -164,10 +165,11 @@ describe('send universal payment', function () {
     //    100      USD
     //  +   5      USD (money from Alice)
     //  -   0.01   USD (connector spread/fee)
+    //  -   0.005  USD (mark: quoted connector slippage)
     //  ==============
-    //    104.99   USD
-    yield assertBalance('http://localhost:3002', 'bob', '104.99')
-    yield assertBalance('http://localhost:3002', 'mark', '995.01')
+    //    104.985  USD
+    yield assertBalance('http://localhost:3002', 'bob', '104.985')
+    yield assertBalance('http://localhost:3002', 'mark', '995.015')
     yield assertZeroHold()
   })
 
@@ -216,16 +218,16 @@ describe('send universal payment', function () {
     //    100      USD
     //  -   5      USD (sent to Carl)
     //  -   0.01   USD (mary: connector spread/fee)
-    //  -   0.0001 USD (mary: connector rounding in its favor)
     //  -   0.01   USD (mark: connector spread/fee)
     //  -   0.0001 USD (mark: connector rounding in its favor)
+    //  -   0.005  USD (mark: quoted connector slippage)
     //  ==============
-    //     94.9899 USD
-    yield assertBalance('http://localhost:3001', 'alice', '94.98')
-    yield assertBalance('http://localhost:3001', 'mark', '1005.02')
+    //     94.9749 USD
+    yield assertBalance('http://localhost:3001', 'alice', '94.9749')
+    yield assertBalance('http://localhost:3001', 'mark', '1005.0251')
 
-    yield assertBalance('http://localhost:3002', 'mark', '994.99')
-    yield assertBalance('http://localhost:3002', 'mary', '1005.01')
+    yield assertBalance('http://localhost:3002', 'mark', '994.985')
+    yield assertBalance('http://localhost:3002', 'mary', '1005.015')
 
     // Carl should have:
     //    100      USD
@@ -257,10 +259,11 @@ describe('send atomic payment', function () {
     //  -   5      USD (sent to Bob)
     //  -   0.01   USD (connector spread/fee)
     //  -   0.0001 USD (connector rounding in its favor)
+    //  -   0.005  USD (mark: quoted connector slippage)
     //  ==============
-    //     94.9899 USD
-    yield assertBalance('http://localhost:3001', 'alice', '94.99')
-    yield assertBalance('http://localhost:3001', 'mark', '1005.01')
+    //     94.9849 USD
+    yield assertBalance('http://localhost:3001', 'alice', '94.9849')
+    yield assertBalance('http://localhost:3001', 'mark', '1005.0151')
 
     // Bob should have:
     //    100      USD
@@ -276,7 +279,7 @@ describe('send atomic payment', function () {
 function * assertBalance (ledger, name, expectedBalance) {
   const actualBalance = yield services.getBalance(ledger, name)
   assert.equal(actualBalance, expectedBalance,
-    `Ledger balance for ${name} should be ${expectedBalance}, but is ${actualBalance}`)
+    `Ledger balance for ${ledger}/accounts/${name} should be ${expectedBalance}, but is ${actualBalance}`)
 }
 
 function * assertZeroHold () {
