@@ -4,6 +4,22 @@ const assert = require('assert')
 const Promise = require('bluebird')
 const ServiceManager = require('../lib/service-manager')
 
+const notificationPrivateKeys = {
+  'http://localhost:3001': require.resolve('./data/notificationSigningPrivate1.pem'),
+  'http://localhost:3002': require.resolve('./data/notificationSigningPrivate2.pem'),
+  'http://localhost:3003': require.resolve('./data/notificationSigningPrivate3.pem')
+}
+const notificationPublicKeys = {
+  'http://localhost:3001': require.resolve('./data/notificationSigningPublic1.pem'),
+  'http://localhost:3002': require.resolve('./data/notificationSigningPublic2.pem'),
+  'http://localhost:3003': require.resolve('./data/notificationSigningPublic3.pem')
+}
+const notificationConditions = {
+  'http://localhost:3001': 'cc:3:11:VIXEKIp-38aZuievH3I3PyOobH6HW-VD4LP6w-4s3gA:518',
+  'http://localhost:3002': 'cc:3:11:Mjmrcm06fOo-3WOEZu9YDSNfqmn0lj4iOsTVEurtCdI:518',
+  'http://localhost:3003': 'cc:3:11:xnTtXKlRuFnFFDTgnSxFn9mYMeimdhbWaZXPAp5Pbs0:518'
+}
+
 const notarySecretKey = 'lRmSmT/I2SS5I7+FnFgHbh8XZuu4NeL0wk8oN86L50U='
 const notaryPublicKey = '4QRmhUtrxlwQYaO+c8K2BtCd6c4D8HVmy5fLDSjsH6A='
 
@@ -12,9 +28,18 @@ const receiverSecret = 'O8Y6+6bJgl2i285yCeC/Wigi6P6TJ4C78tdASqDOR9g='
 const services = new ServiceManager(process.cwd())
 
 before(function * () {
-  yield services.startLedger('ledger1', 3001)
-  yield services.startLedger('ledger2', 3002)
-  yield services.startLedger('ledger3', 3003)
+  yield services.startLedger('ledger1', 3001, {
+    notificationPrivateKey: notificationPrivateKeys['http://localhost:3001'],
+    notificationPublicKey: notificationPublicKeys['http://localhost:3001']
+  })
+  yield services.startLedger('ledger2', 3002, {
+    notificationPrivateKey: notificationPrivateKeys['http://localhost:3002'],
+    notificationPublicKey: notificationPublicKeys['http://localhost:3002']
+  })
+  yield services.startLedger('ledger3', 3003, {
+    notificationPrivateKey: notificationPrivateKeys['http://localhost:3003'],
+    notificationPublicKey: notificationPublicKeys['http://localhost:3003']
+  })
 
   yield services.startConnector('mark', 4001, {
     pairs: [
@@ -24,7 +49,8 @@ before(function * () {
     credentials: {
       'http://localhost:3001': makeCredentials('http://localhost:3001', 'mark'),
       'http://localhost:3002': makeCredentials('http://localhost:3002', 'mark')
-    }
+    },
+    notificationKeys: notificationConditions
   })
 
   yield services.startConnector('mary', 4002, {
@@ -35,7 +61,8 @@ before(function * () {
     credentials: {
       'http://localhost:3002': makeCredentials('http://localhost:3002', 'mary'),
       'http://localhost:3003': makeCredentials('http://localhost:3003', 'mary')
-    }
+    },
+    notificationKeys: notificationConditions
   })
 
   yield services.startNotary('notary1', 6001, {

@@ -43,7 +43,7 @@ class ServiceManager {
     })
   }
 
-  startLedger (name, port) {
+  startLedger (name, port, options) {
     const dbPath = path.resolve(this.dataDir, './' + name + '.sqlite')
     return this._npm(['start'], {
       env: {
@@ -54,7 +54,9 @@ class ServiceManager {
         LEDGER_PORT: port,
         LEDGER_ADMIN_USER: this.adminUser,
         LEDGER_ADMIN_PASS: this.adminPass,
-        LEDGER_AMOUNT_SCALE: '4'
+        LEDGER_AMOUNT_SCALE: '4',
+        LEDGER_SIGNING_PRIVATE_KEY: options.notificationPrivateKey,
+        LEDGER_SIGNING_PUBLIC_KEY: options.notificationPublicKey
       },
       cwd: path.resolve(this.testDir, 'node_modules/five-bells-ledger')
     }, 'http://localhost:' + port + '/health')
@@ -73,7 +75,9 @@ class ServiceManager {
         CONNECTOR_PORT: port,
         CONNECTOR_ADMIN_USER: this.adminUser,
         CONNECTOR_ADMIN_PASS: this.adminPass,
-        CONNECTOR_BACKEND: 'one-to-one'
+        CONNECTOR_BACKEND: 'one-to-one',
+        CONNECTOR_NOTIFICATION_VERIFY: true,
+        CONNECTOR_NOTIFICATION_KEYS: JSON.stringify(options.notificationKeys)
       },
       cwd: path.resolve(this.testDir, 'node_modules/five-bells-connector')
     }, 'http://localhost:' + port + '/health')
