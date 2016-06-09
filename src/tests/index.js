@@ -90,6 +90,7 @@ before(function * () {
 beforeEach(function * () {
   // Users
   yield services.updateAccount('http://localhost:3001', 'alice', {balance: '100'})
+  yield services.updateAccount('http://localhost:3001', 'adam', {balance: '100'})
   yield services.updateAccount('http://localhost:3002', 'bob', {balance: '100'})
   yield services.updateAccount('http://localhost:3003', 'carl', {balance: '100'})
   // Connectors
@@ -299,6 +300,30 @@ describe('send atomic payment', function () {
     //    105      USD
     yield assertBalance('http://localhost:3002', 'bob', '105')
     yield assertBalance('http://localhost:3002', 'mark', '995')
+    yield assertZeroHold()
+  })
+})
+
+describe('send same-ledger payment', function () {
+  it('transfers the funds', function * () {
+    const receiverId = 'same-ledger-0001'
+    yield services.sendPayment({
+      sourceAccount: 'http://localhost:3001/accounts/alice',
+      sourcePassword: 'alice',
+      destinationAccount: 'http://localhost:3001/accounts/adam',
+      destinationAmount: '5',
+      receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
+      destinationMemo: { receiverId }
+    })
+    yield Promise.delay(2000)
+    // Alice should have:
+    //    100      USD
+    //  -   5      USD (sent to Adam)
+    //  ==============
+    //     95      USD
+    yield assertBalance('http://localhost:3001', 'alice', '95')
+    yield assertBalance('http://localhost:3001', 'adam', '105')
+    yield assertBalance('http://localhost:3001', 'mark', '1000')
     yield assertZeroHold()
   })
 })
