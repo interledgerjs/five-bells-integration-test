@@ -155,10 +155,11 @@ describe('send universal payment', function () {
     //  -   0.01   USD (connector spread/fee)
     //  -   0.0001 USD (connector rounding in its favor)
     //  -   0.005  USD (mark: quoted connector slippage)
+    //  -   0.0001 USD (mark: 1/10^scale)
     //  ==============
-    //     94.9849 USD
-    yield assertBalance('http://localhost:3001', 'alice', '94.9849')
-    yield assertBalance('http://localhost:3001', 'mark', '1005.0151')
+    //     94.9848 USD
+    yield assertBalance('http://localhost:3001', 'alice', '94.9848')
+    yield assertBalance('http://localhost:3001', 'mark', '1005.0152')
 
     // Bob should have:
     //    100      USD
@@ -194,10 +195,11 @@ describe('send universal payment', function () {
     //  +   5      USD (money from Alice)
     //  -   0.01   USD (connector spread/fee)
     //  -   0.005  USD (mark: quoted connector slippage)
+    //  -   0.0001 USD (mark: 1/10^scale)
     //  ==============
-    //    104.985  USD
-    yield assertBalance('http://localhost:3002', 'bob', '104.985')
-    yield assertBalance('http://localhost:3002', 'mark', '995.015')
+    //    104.9849  USD
+    yield assertBalance('http://localhost:3002', 'bob', '104.9849')
+    yield assertBalance('http://localhost:3002', 'mark', '995.0151')
     yield assertZeroHold()
   })
 
@@ -246,16 +248,18 @@ describe('send universal payment', function () {
     //    100      USD
     //  -   5      USD (sent to Carl)
     //  -   0.01   USD (mary: connector spread/fee)
+    //  -   0.0001 USD (mary: 1/10^scale)
     //  -   0.01   USD (mark: connector spread/fee)
-    //  -   0.0001 USD (mark: connector rounding in its favor)
+    //  -   0.0001 USD (mark: 1/10^scale)
     //  -   0.005  USD (mark: quoted connector slippage)
+    //  -   0.0001 USD (mark: round source amount up)
     //  ==============
-    //     94.9749 USD
-    yield assertBalance('http://localhost:3001', 'alice', '94.9749')
-    yield assertBalance('http://localhost:3001', 'mark', '1005.0251')
+    //     94.9747 USD
+    yield assertBalance('http://localhost:3001', 'alice', '94.9747')
+    yield assertBalance('http://localhost:3001', 'mark', '1005.0253')
 
-    yield assertBalance('http://localhost:3002', 'mark', '994.985')
-    yield assertBalance('http://localhost:3002', 'mary', '1005.015')
+    yield assertBalance('http://localhost:3002', 'mark', '994.9848')
+    yield assertBalance('http://localhost:3002', 'mary', '1005.0152')
 
     // Carl should have:
     //    100      USD
@@ -264,6 +268,82 @@ describe('send universal payment', function () {
     //    105      USD
     yield assertBalance('http://localhost:3003', 'carl', '105')
     yield assertBalance('http://localhost:3003', 'mary', '995')
+    yield assertZeroHold()
+  })
+
+  it('transfers a small amount (by destination amount)', function * () {
+    const receiverId = 'universal-0005'
+    yield services.sendPayment({
+      sourceAccount: 'http://localhost:3001/accounts/alice',
+      sourcePassword: 'alice',
+      destinationAccount: 'http://localhost:3003/accounts/carl',
+      destinationAmount: '0.01',
+      receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
+      destinationMemo: { receiverId }
+    })
+    yield Promise.delay(2000)
+    // Alice should have:
+    //    100      USD
+    //  -   0.01   USD (sent to Carl)
+    //  -   0.00002 USD (mary: connector spread/fee)
+    //  -   0.0001  USD (mary: 1/10^scale)
+    //  -   0.00002 USD (mark: connector spread/fee)
+    //  -   0.0001  USD (mark: 1/10^scale)
+    //  -   0.00001 USD (mark: quoted connector slippage)
+    //  -   0.00005 USD (mark: round source amount up)
+    //  ===============
+    //     99.9897  USD
+    yield assertBalance('http://localhost:3001', 'alice', '99.9897')
+    yield assertBalance('http://localhost:3001', 'mark', '1000.0103')
+
+    yield assertBalance('http://localhost:3002', 'mark', '999.9898')
+    yield assertBalance('http://localhost:3002', 'mary', '1000.0102')
+
+    // Carl should have:
+    //    100      USD
+    //  +   0.01   USD (money from Alice)
+    //  ==============
+    //    100.01   USD
+    yield assertBalance('http://localhost:3003', 'carl', '100.01')
+    yield assertBalance('http://localhost:3003', 'mary', '999.99')
+    yield assertZeroHold()
+  })
+
+  it('transfers a small amount (by source amount)', function * () {
+    const receiverId = 'universal-0005'
+    yield services.sendPayment({
+      sourceAccount: 'http://localhost:3001/accounts/alice',
+      sourcePassword: 'alice',
+      destinationAccount: 'http://localhost:3003/accounts/carl',
+      sourceAmount: '0.01',
+      receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
+      destinationMemo: { receiverId }
+    })
+    yield Promise.delay(2000)
+    // Alice should have:
+    //    100      USD
+    //  -   0.01   USD (sent to Carl)
+    //  ==============
+    //     99.99   USD
+    yield assertBalance('http://localhost:3001', 'alice', '99.99')
+    yield assertBalance('http://localhost:3001', 'mark', '1000.01')
+
+    yield assertBalance('http://localhost:3002', 'mark', '999.9901')
+    yield assertBalance('http://localhost:3002', 'mary', '1000.0099')
+
+    // Carl should have:
+    //    100       USD
+    //  +   0.01    USD (money from Alice)
+    //  -   0.00002 USD (mary: connector spread/fee)
+    //  -   0.0001  USD (mary: 1/10^scale)
+    //  -   0.00002 USD (mark: connector spread/fee)
+    //  -   0.0001  USD (mark: 1/10^scale)
+    //  -   0.00001 USD (mark: quoted connector slippage)
+    //  -   0.00005 USD (mark: round destination amount down)
+    //  ==============
+    //    100.0097  USD
+    yield assertBalance('http://localhost:3003', 'carl', '100.0097')
+    yield assertBalance('http://localhost:3003', 'mary', '999.9903')
     yield assertZeroHold()
   })
 })
@@ -287,11 +367,12 @@ describe('send atomic payment', function () {
     //  -   5      USD (sent to Bob)
     //  -   0.01   USD (connector spread/fee)
     //  -   0.0001 USD (connector rounding in its favor)
+    //  -   0.0001 USD (mark: 1/10^scale)
     //  -   0.005  USD (mark: quoted connector slippage)
     //  ==============
     //     94.9849 USD
-    yield assertBalance('http://localhost:3001', 'alice', '94.9849')
-    yield assertBalance('http://localhost:3001', 'mark', '1005.0151')
+    yield assertBalance('http://localhost:3001', 'alice', '94.9848')
+    yield assertBalance('http://localhost:3001', 'mark', '1005.0152')
 
     // Bob should have:
     //    100      USD

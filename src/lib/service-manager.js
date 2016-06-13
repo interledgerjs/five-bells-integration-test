@@ -67,7 +67,6 @@ class ServiceManager {
       env: {
         CONNECTOR_CREDENTIALS: JSON.stringify(options.credentials),
         CONNECTOR_DEBUG_AUTOFUND: '1',
-        CONNECTOR_QUOTE_FULL_PATH: '1',
         CONNECTOR_PAIRS: JSON.stringify(options.pairs),
         CONNECTOR_MAX_HOLD_TIME: 60,
         PATH: process.env.PATH,
