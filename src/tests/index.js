@@ -370,7 +370,7 @@ describe('send atomic payment', function () {
     //  -   0.0001 USD (mark: 1/10^scale)
     //  -   0.005  USD (mark: quoted connector slippage)
     //  ==============
-    //     94.9849 USD
+    //     94.9848 USD
     yield assertBalance('http://localhost:3001', 'alice', '94.9848')
     yield assertBalance('http://localhost:3001', 'mark', '1005.0152')
 
