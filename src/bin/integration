@@ -28,6 +28,7 @@ Promise.coroutine(function * () {
   if (command === 'all' || command === 'test') {
     code = code || (yield spawn(mocha, [
       __dirname + '/../tests/index.js',
+      __dirname + '/../tests/advanced.js',
       '--no-timeouts',
       '-r', 'co-mocha'
     ], {

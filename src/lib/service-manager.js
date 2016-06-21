@@ -1,6 +1,7 @@
 'use strict'
 
 const crypto = require('crypto')
+const assert = require('assert')
 const cc = require('five-bells-condition')
 const path = require('path')
 const Promise = require('bluebird-co')
@@ -27,6 +28,10 @@ class ServiceManager {
     this.nodePath = process.env.npm_node_execpath
     this.npmPath = process.env.npm_execpath
     this.hasCustomNPM = this.nodePath && this.npmPath
+    this.processes = []
+
+    process.on('exit', this.killAll.bind(this))
+    process.on('uncaughtException', this.killAll.bind(this))
   }
 
   _npm (args, options, waitFor) {
@@ -36,11 +41,15 @@ class ServiceManager {
       args.unshift(this.npmPath)
     }
     options = Object.assign({detached: true, stdio: 'inherit'}, options)
-    return spawnAndWait(cmd, args, options, waitFor).tap(function (proc) {
-      process.on('exit', killChild)
-      process.on('uncaughtException', killChild)
-      function killChild () { process.kill(-proc.pid) }
-    })
+    const _this = this
+    return spawnAndWait(cmd, args, options, waitFor)
+      .tap(function (proc) { _this.processes.push(proc) })
+  }
+
+  killAll () {
+    while (this.processes.length) {
+      process.kill(-this.processes.pop().pid)
+    }
   }
 
   startLedger (name, port, options) {
@@ -54,7 +63,7 @@ class ServiceManager {
         LEDGER_PORT: port,
         LEDGER_ADMIN_USER: this.adminUser,
         LEDGER_ADMIN_PASS: this.adminPass,
-        LEDGER_AMOUNT_SCALE: '4',
+        LEDGER_AMOUNT_SCALE: options.scale || '4',
         LEDGER_SIGNING_PRIVATE_KEY: options.notificationPrivateKey,
         LEDGER_SIGNING_PUBLIC_KEY: options.notificationPublicKey
       },
@@ -69,6 +78,10 @@ class ServiceManager {
         CONNECTOR_DEBUG_AUTOFUND: '1',
         CONNECTOR_PAIRS: JSON.stringify(options.pairs),
         CONNECTOR_MAX_HOLD_TIME: 60,
+        CONNECTOR_ROUTE_BROADCAST_INTERVAL: 10 * 60 * 1000,
+        CONNECTOR_ROUTE_EXPIRY: 11 * 60 * 1000, // don't expire routes
+        CONNECTOR_FX_SPREAD: options.fxSpread || '',
+        CONNECTOR_SLIPPAGE: options.slippage || '',
         PATH: process.env.PATH,
         CONNECTOR_HOSTNAME: 'localhost',
         CONNECTOR_PORT: port,
@@ -161,6 +174,18 @@ class ServiceManager {
 
   sendPayment (params) {
     return require(path.resolve(this.testDir, 'node_modules/five-bells-sender'))(params)
+  }
+
+  * assertBalance (ledger, name, expectedBalance) {
+    const actualBalance = yield this.getBalance(ledger, name)
+    assert.equal(actualBalance, expectedBalance,
+      `Ledger balance for ${ledger}/accounts/${name} should be ${expectedBalance}, but is ${actualBalance}`)
+  }
+
+  * assertZeroHold () {
+    yield this.assertBalance('http://localhost:3001', 'hold', '0')
+    yield this.assertBalance('http://localhost:3002', 'hold', '0')
+    yield this.assertBalance('http://localhost:3003', 'hold', '0')
   }
 }
 
