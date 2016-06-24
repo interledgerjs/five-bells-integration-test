@@ -17,6 +17,8 @@ before(function * () {
   yield graph.startLedger('ledger2', 3002, {})
   yield graph.startLedger('ledger3', 3003, {})
 
+  yield graph.setupAccounts()
+
   yield graph.startConnector('mark', 4001, {
     edges: [
       {source: 'http://localhost:3001', target: 'http://localhost:3002'}
