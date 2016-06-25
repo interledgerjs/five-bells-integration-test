@@ -7,7 +7,20 @@ const path = require('path')
 const Promise = require('bluebird-co')
 const request = require('superagent')
 const fs = require('fs')
-const spawnAndWait = require('../util').spawnAndWait
+const util = require('../util')
+const chalk = require('chalk')
+
+const COMMON_ENV = Object.assign({}, {
+  // Path is required for NPM to work properly
+  PATH: process.env.PATH,
+  // Print additional debug information from Five Bells and ILP modules
+  DEBUG: 'five-bells-*,ilp-*'
+}, !require('supports-color') ? {} : {
+  // Force colored output
+  FORCE_COLOR: 1,
+  DEBUG_COLORS: 1,
+  npm_config_color: 'always'
+})
 
 class ServiceManager {
   /**
@@ -34,29 +47,46 @@ class ServiceManager {
     process.on('uncaughtException', this.killAll.bind(this))
   }
 
-  _npm (args, options, waitFor) {
+  _npm (args, prefix, options, waitFor) {
     let cmd = 'npm'
     if (this.hasCustomNPM) {
       cmd = this.nodePath
       args.unshift(this.npmPath)
     }
-    options = Object.assign({detached: true, stdio: 'inherit'}, options)
-    const _this = this
-    return spawnAndWait(cmd, args, options, waitFor)
-      .tap(function (proc) { _this.processes.push(proc) })
+    options = Object.assign({detached: true, stdio: ['ignore', 'ignore', 'ignore']}, options)
+    const formatter = this._getOutputFormatter(prefix)
+    const proc = util.spawnParallel(cmd, args, options, formatter)
+
+    // Keep track of processes so we can kill them later
+    this.processes.push(proc)
+
+    // Wait for result of process
+    return util.wait(waitFor)
+  }
+
+  _getOutputFormatter (prefix) {
+    return function (line, enc, callback) {
+      this.push('' + chalk.dim(prefix) + ' ' + line.toString('utf-8') + '\n')
+      callback()
+    }
   }
 
   killAll () {
     while (this.processes.length) {
-      process.kill(-this.processes.pop().pid)
+      let pid
+      try {
+        pid = -this.processes.pop().pid
+        if (pid) process.kill(pid)
+      } catch (err) {
+        console.error('could not kill pid ' + pid)
+      }
     }
   }
 
   startLedger (name, port, options) {
     const dbPath = path.resolve(this.dataDir, './' + name + '.sqlite')
-    return this._npm(['start'], {
-      env: {
-        PATH: process.env.PATH,
+    return this._npm(['start'], 'ledger:' + port, {
+      env: Object.assign({}, COMMON_ENV, {
         LEDGER_DB_URI: 'sqlite://' + dbPath,
         LEDGER_DB_SYNC: true,
         LEDGER_HOSTNAME: 'localhost',
@@ -66,14 +96,14 @@ class ServiceManager {
         LEDGER_AMOUNT_SCALE: options.scale || '4',
         LEDGER_SIGNING_PRIVATE_KEY: options.notificationPrivateKey,
         LEDGER_SIGNING_PUBLIC_KEY: options.notificationPublicKey
-      },
+      }),
       cwd: path.resolve(this.testDir, 'node_modules/five-bells-ledger')
     }, 'http://localhost:' + port + '/health')
   }
 
   startConnector (name, port, options) {
-    return this._npm(['start'], {
-      env: {
+    return this._npm(['start'], 'connector:' + port, {
+      env: Object.assign({}, COMMON_ENV, {
         CONNECTOR_CREDENTIALS: JSON.stringify(options.credentials),
         CONNECTOR_DEBUG_AUTOFUND: '1',
         CONNECTOR_PAIRS: JSON.stringify(options.pairs),
@@ -82,7 +112,6 @@ class ServiceManager {
         CONNECTOR_ROUTE_EXPIRY: 11 * 60 * 1000, // don't expire routes
         CONNECTOR_FX_SPREAD: options.fxSpread || '',
         CONNECTOR_SLIPPAGE: options.slippage || '',
-        PATH: process.env.PATH,
         CONNECTOR_HOSTNAME: 'localhost',
         CONNECTOR_PORT: port,
         CONNECTOR_ADMIN_USER: this.adminUser,
@@ -90,36 +119,34 @@ class ServiceManager {
         CONNECTOR_BACKEND: 'one-to-one',
         CONNECTOR_NOTIFICATION_VERIFY: true,
         CONNECTOR_NOTIFICATION_KEYS: JSON.stringify(options.notificationKeys)
-      },
+      }),
       cwd: path.resolve(this.testDir, 'node_modules/five-bells-connector')
     }, 'http://localhost:' + port + '/health')
   }
 
   startNotary (name, port, options) {
     const dbPath = path.resolve(this.dataDir, './' + name + '.sqlite')
-    return this._npm(['start'], {
-      env: {
-        PATH: process.env.PATH,
+    return this._npm(['start'], 'notary:' + port, {
+      env: Object.assign({}, COMMON_ENV, {
         NOTARY_DB_URI: 'sqlite://' + dbPath,
         NOTARY_DB_SYNC: true,
         NOTARY_HOSTNAME: 'localhost',
         NOTARY_PORT: port,
         NOTARY_ED25519_SECRET_KEY: options.secretKey,
         NOTARY_ED25519_PUBLIC_KEY: options.publicKey
-      },
+      }),
       cwd: path.resolve(this.testDir, 'node_modules/five-bells-notary')
     }, 'http://localhost:' + port + '/health')
   }
 
   startReceiver (port, options) {
-    return this._npm(['start'], {
-      env: {
-        PATH: process.env.PATH,
+    return this._npm(['start'], 'receiver:' + port, {
+      env: Object.assign({}, COMMON_ENV, {
         RECEIVER_PORT: port,
         RECEIVER_HOSTNAME: 'localhost',
         RECEIVER_SECRET: options.secret,
         RECEIVER_CREDENTIALS: JSON.stringify(options.credentials || [])
-      },
+      }),
       cwd: path.resolve(this.testDir, 'node_modules/five-bells-receiver')
     }, 'http://localhost:' + port + '/health')
   }
