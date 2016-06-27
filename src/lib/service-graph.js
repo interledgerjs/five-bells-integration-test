@@ -37,12 +37,13 @@ class ServiceGraph {
     return this.services.startLedger(name, port, options)
   }
 
-  startConnector (name, port, options) {
+  * startConnector (name, port, options) {
     this.connectors[name] = options
     options.pairs = this.edgesToPairs(options.edges)
     options.credentials = this.edgesToCredentials(options.edges, name)
     options.notificationKeys = this.notificationConditions
-    return this.services.startConnector(name, port, options)
+    yield this.setupConnectorAccounts(name)
+    yield this.services.startConnector(name, port, options)
   }
 
   * startReceiver (port, options) {
@@ -80,11 +81,15 @@ class ServiceGraph {
     }
     // Connectors
     for (const connectorName in this.connectors) {
-      const connector = this.connectors[connectorName]
-      for (const edge of connector.edges) {
-        yield this.services.updateAccount(edge.source, connectorName, {balance: '1000'})
-        yield this.services.updateAccount(edge.target, connectorName, {balance: '1000'})
-      }
+      yield this.setupConnectorAccounts(connectorName)
+    }
+  }
+
+  * setupConnectorAccounts (connectorName) {
+    const connector = this.connectors[connectorName]
+    for (const edge of connector.edges) {
+      yield this.services.updateAccount(edge.source, connectorName, {balance: '1000'})
+      yield this.services.updateAccount(edge.target, connectorName, {balance: '1000'})
     }
   }
 }
