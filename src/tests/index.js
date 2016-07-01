@@ -335,7 +335,8 @@ describe('Basic', function () {
         sourcePassword: 'alice',
         destinationAccount: 'http://localhost:3002/accounts/bob',
         destinationAmount: '5',
-        destinationMemo: { receiverId }
+        destinationMemo: { receiverId },
+        unsafeOptimisticTransport: true
       })
       yield Promise.delay(2000)
       // Alice should have:
@@ -368,7 +369,8 @@ describe('Basic', function () {
         sourcePassword: 'alice',
         destinationAccount: 'http://localhost:3003/accounts/bob',
         sourceAmount: '5',
-        destinationMemo: { receiverId }
+        destinationMemo: { receiverId },
+        unsafeOptimisticTransport: true
       })
       yield Promise.delay(2000)
       // Alice should have:
