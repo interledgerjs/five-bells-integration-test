@@ -327,6 +327,70 @@ describe('Basic', function () {
     })
   })
 
+  describe('send optimistic payment', function () {
+    it('transfers the funds', function * () {
+      const receiverId = 'optimistic-0001'
+      yield services.sendPayment({
+        sourceAccount: 'http://localhost:3001/accounts/alice',
+        sourcePassword: 'alice',
+        destinationAccount: 'http://localhost:3002/accounts/bob',
+        destinationAmount: '5',
+        destinationMemo: { receiverId },
+        unsafeOptimisticTransport: true
+      })
+      yield Promise.delay(2000)
+      // Alice should have:
+      //    100      USD
+      //  -   5      USD (sent to Bob)
+      //  -   0.01   USD (connector spread/fee)
+      //  -   0.0001 USD (connector rounding in its favor)
+      //  -   0.0001 USD (mark: 1/10^scale)
+      //  -   0.005  USD (mark: quoted connector slippage)
+      //  ==============
+      //     94.9848 USD
+      yield services.assertBalance('http://localhost:3001', 'alice', '94.9848')
+      yield services.assertBalance('http://localhost:3001', 'mark', '1005.0152')
+
+      // Bob should have:
+      //    100      USD
+      //  +   5      USD (money from Alice)
+      //  ==============
+      //    105      USD
+      yield services.assertBalance('http://localhost:3002', 'bob', '105')
+      yield services.assertBalance('http://localhost:3002', 'mark', '995')
+      yield services.assertZeroHold()
+    })
+
+    it('transfers without hold, so payment can partially succeed', function * () {
+      const receiverId = 'optimistic-0002'
+      yield services.updateAccount('http://localhost:3003', 'mary', {balance: '0'})
+      yield services.sendPayment({
+        sourceAccount: 'http://localhost:3001/accounts/alice',
+        sourcePassword: 'alice',
+        destinationAccount: 'http://localhost:3003/accounts/bob',
+        sourceAmount: '5',
+        destinationMemo: { receiverId },
+        unsafeOptimisticTransport: true
+      })
+      yield Promise.delay(2000)
+      // Alice should have:
+      //    100      USD
+      //  -   5      USD (sent to Bob)
+      //  ==============
+      //     95      USD
+      yield services.assertBalance('http://localhost:3001', 'alice', '95')
+      yield services.assertBalance('http://localhost:3001', 'mark', '1005')
+
+      yield services.assertBalance('http://localhost:3002', 'mark', '995.01')
+      yield services.assertBalance('http://localhost:3002', 'mary', '1004.99')
+
+      // No change, since mary doesn't have any money to send bob.
+      yield services.assertBalance('http://localhost:3003', 'bob', '100')
+      yield services.assertBalance('http://localhost:3003', 'mary', '0')
+      yield services.assertZeroHold()
+    })
+  })
+
   describe('send same-ledger payment', function () {
     it('transfers the funds', function * () {
       const receiverId = 'same-ledger-0001'
