@@ -49,8 +49,11 @@ class ServiceGraph {
   * startReceiver (port, options) {
     // Receiver accounts have to exist before receiver is started
     yield this.setupAccounts()
-    options.credentials = this.ledgers.map(function (ledger) {
-      return {account: ledger + '/accounts/bob', password: 'bob'}
+    options.credentials = this.ledgers.map(function (ledgerHost) {
+      return {
+        account: ledgerHost + '/accounts/bob',
+        password: 'bob'
+      }
     })
     yield this.services.startReceiver(port, options)
   }
@@ -92,11 +95,18 @@ class ServiceGraph {
       yield this.services.updateAccount(edge.target, connectorName, {balance: '1000'})
     }
   }
+
+  * assertZeroHold () {
+    for (const ledgerHost of this.ledgers) {
+      yield this.services.assertBalance(ledgerHost, 'hold', '0')
+    }
+  }
 }
 
 function makeCredentials (ledger, name) {
   return {
-    account_uri: ledger + '/accounts/' + encodeURIComponent(name),
+    id: 'http://' + ledger,
+    account: 'http://' + ledger + '/accounts/' + encodeURIComponent(name),
     username: name,
     password: name
   }

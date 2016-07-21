@@ -43,6 +43,10 @@ class ServiceManager {
     this.hasCustomNPM = this.nodePath && this.npmPath
     this.processes = []
 
+    const depsDir = path.resolve(this.testDir, 'node_modules')
+    this.Client = require(path.resolve(depsDir, 'ilp-core')).Client
+    this.FiveBellsLedger = require(path.resolve(depsDir, 'ilp-plugin-bells'))
+
     process.on('exit', this.killAll.bind(this))
     process.on('uncaughtException', this.killAll.bind(this))
   }
@@ -105,7 +109,6 @@ class ServiceManager {
     return this._npm(['start'], 'connector:' + port, {
       env: Object.assign({}, COMMON_ENV, {
         CONNECTOR_CREDENTIALS: JSON.stringify(options.credentials),
-        CONNECTOR_DEBUG_AUTOFUND: '1',
         CONNECTOR_PAIRS: JSON.stringify(options.pairs),
         CONNECTOR_MAX_HOLD_TIME: 60,
         CONNECTOR_ROUTE_BROADCAST_INTERVAL: 10 * 60 * 1000,
@@ -199,8 +202,32 @@ class ServiceManager {
     return condition.getConditionUri()
   }
 
-  sendPayment (params) {
-    return require(path.resolve(this.testDir, 'node_modules/five-bells-sender'))(params)
+  * sendPayment (params) {
+    const sourceAddress = parseAddress(params.sourceAccount)
+    const client = new this.Client({
+      plugin: this.FiveBellsLedger,
+      prefix: params.sourceAccount,
+      auth: {
+        account: 'http://' + sourceAddress.ledger + '/accounts/' + sourceAddress.username,
+        password: params.sourcePassword
+      }
+    })
+    yield client.connect()
+    const quote = yield client.quote({
+      destinationAddress: params.destinationAccount,
+      sourceAmount: params.sourceAmount,
+      destinationAmount: params.destinationAmount,
+      destinationPrecision: params.destinationPrecision,
+      destinationScale: params.destinationScale
+    })
+    return yield client.sendQuotedPayment(Object.assign({
+      destinationAccount: params.destinationAccount,
+      destinationLedger: parseAddress(params.destinationAccount).ledger,
+      destinationMemo: params.destinationMemo,
+      expiresAt: (new Date(Date.now() + quote.sourceExpiryDuration * 1000)).toISOString(),
+      executionCondition: params.receiptCondition,
+      unsafeOptimisticTransport: params.unsafeOptimisticTransport
+    }, quote))
   }
 
   * assertBalance (ledger, name, expectedBalance) {
@@ -208,11 +235,13 @@ class ServiceManager {
     assert.equal(actualBalance, expectedBalance,
       `Ledger balance for ${ledger}/accounts/${name} should be ${expectedBalance}, but is ${actualBalance}`)
   }
+}
 
-  * assertZeroHold () {
-    yield this.assertBalance('http://localhost:3001', 'hold', '0')
-    yield this.assertBalance('http://localhost:3002', 'hold', '0')
-    yield this.assertBalance('http://localhost:3003', 'hold', '0')
+function parseAddress (address) {
+  const addressParts = address.split('.')
+  return {
+    ledger: addressParts.slice(0, -1).join('.'),
+    username: addressParts[addressParts.length - 1]
   }
 }
 

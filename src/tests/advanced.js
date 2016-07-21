@@ -25,27 +25,27 @@ describe('Advanced', function () {
     yield graph.setupAccounts()
 
     yield graph.startConnector('mark2', 4101, {
-      edges: [{source: 'http://localhost:3101', target: 'http://localhost:3102'}]
+      edges: [{source: 'localhost:3101', target: 'localhost:3102'}]
     })
 
     yield graph.startConnector('mary2', 4102, {
-      edges: [{source: 'http://localhost:3101', target: 'http://localhost:3103'}],
+      edges: [{source: 'localhost:3101', target: 'localhost:3103'}],
       slippage: '0'
     })
 
     yield graph.startConnector('martin2', 4103, {
-      edges: [{source: 'http://localhost:3101', target: 'http://localhost:3104'}],
+      edges: [{source: 'localhost:3101', target: 'localhost:3104'}],
       fxSpread: '0.5'
     })
 
     yield graph.startConnector('millie2', 4104, {
-      edges: [{source: 'http://localhost:3101', target: 'http://localhost:3105'}]
+      edges: [{source: 'localhost:3101', target: 'localhost:3105'}]
     })
     yield graph.startConnector('mia2', 4105, {
-      edges: [{source: 'http://localhost:3105', target: 'http://localhost:3106'}]
+      edges: [{source: 'localhost:3105', target: 'localhost:3106'}]
     })
     yield graph.startConnector('mike2', 4106, {
-      edges: [{source: 'http://localhost:3106', target: 'http://localhost:3107'}]
+      edges: [{source: 'localhost:3106', target: 'localhost:3107'}]
     })
 
     yield services.startNotary('notary2_1', 6101, {
@@ -62,9 +62,9 @@ describe('Advanced', function () {
     it('scale: high → low; by source amount', function * () {
       const receiverId = 'universal-0001'
       yield services.sendPayment({
-        sourceAccount: 'http://localhost:3101/accounts/alice',
+        sourceAccount: 'localhost:3101.alice',
         sourcePassword: 'alice',
-        destinationAccount: 'http://localhost:3102/accounts/bob',
+        destinationAccount: 'localhost:3102.bob',
         sourceAmount: '4.9999',
         receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
         destinationMemo: { receiverId }
@@ -89,15 +89,15 @@ describe('Advanced', function () {
       //    104.97    USD (round down)
       yield services.assertBalance('http://localhost:3102', 'bob', '104.97')
       yield services.assertBalance('http://localhost:3102', 'mark2', '995.03')
-      yield services.assertZeroHold()
+      yield graph.assertZeroHold()
     })
 
     it('scale: low → high', function * () {
       const receiverId = 'universal-0002'
       yield services.sendPayment({
-        sourceAccount: 'http://localhost:3102/accounts/alice',
+        sourceAccount: 'localhost:3102.alice',
         sourcePassword: 'alice',
-        destinationAccount: 'http://localhost:3101/accounts/bob',
+        destinationAccount: 'localhost:3101.bob',
         sourceAmount: '4.99',
         receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
         destinationMemo: { receiverId }
@@ -122,15 +122,15 @@ describe('Advanced', function () {
       //    104.9749  USD (round down)
       yield services.assertBalance('http://localhost:3101', 'bob', '104.9749')
       yield services.assertBalance('http://localhost:3101', 'mark2', '995.0251')
-      yield services.assertZeroHold()
+      yield graph.assertZeroHold()
     })
 
     it('zero slippage', function * () {
       const receiverId = 'universal-0003'
       yield services.sendPayment({
-        sourceAccount: 'http://localhost:3101/accounts/alice',
+        sourceAccount: 'localhost:3101.alice',
         sourcePassword: 'alice',
-        destinationAccount: 'http://localhost:3103/accounts/bob',
+        destinationAccount: 'localhost:3103.bob',
         sourceAmount: '5',
         receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
         destinationMemo: { receiverId }
@@ -154,15 +154,15 @@ describe('Advanced', function () {
       //    104.9899 USD
       yield services.assertBalance('http://localhost:3103', 'bob', '104.9899')
       yield services.assertBalance('http://localhost:3103', 'mary2', '995.0101')
-      yield services.assertZeroHold()
+      yield graph.assertZeroHold()
     })
 
     it('high spread', function * () {
       const receiverId = 'universal-0004'
       yield services.sendPayment({
-        sourceAccount: 'http://localhost:3101/accounts/alice',
+        sourceAccount: 'localhost:3101.alice',
         sourcePassword: 'alice',
-        destinationAccount: 'http://localhost:3104/accounts/bob',
+        destinationAccount: 'localhost:3104.bob',
         sourceAmount: '5',
         receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
         destinationMemo: { receiverId }
@@ -186,19 +186,21 @@ describe('Advanced', function () {
       //    102.4974 USD
       yield services.assertBalance('http://localhost:3104', 'bob', '102.4974')
       yield services.assertBalance('http://localhost:3104', 'martin2', '997.5026')
-      yield services.assertZeroHold()
+      yield graph.assertZeroHold()
     })
 
     it('many hops', function * () {
       // Send payment 1→5→6→7
       const receiverId = 'universal-0005'
       yield services.sendPayment({
-        sourceAccount: 'http://localhost:3101/accounts/alice',
+        sourceAccount: 'localhost:3101.alice',
         sourcePassword: 'alice',
-        destinationAccount: 'http://localhost:3107/accounts/bob',
+        destinationAccount: 'localhost:3107.bob',
         sourceAmount: '4.9999',
         receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-        destinationMemo: { receiverId }
+        destinationMemo: { receiverId },
+        destinationPrecision: '10',
+        destinationScale: '4'
       })
       yield Promise.delay(2000)
       // Alice should have:
@@ -246,7 +248,7 @@ describe('Advanced', function () {
       //    104.9646    USD (round destination down)
       yield services.assertBalance('http://localhost:3107', 'bob', '104.9646')
       yield services.assertBalance('http://localhost:3107', 'mike2', '995.0354')
-      yield services.assertZeroHold()
+      yield graph.assertZeroHold()
     })
   })
 })
