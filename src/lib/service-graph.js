@@ -70,8 +70,8 @@ class ServiceGraph {
   edgesToCredentials (edges, connectorName) {
     const credentials = {}
     for (const edge of edges) {
-      credentials[edge.source] = makeCredentials(edge.source, connectorName)
-      credentials[edge.target] = makeCredentials(edge.target, connectorName)
+      credentials[edge.source] = this.makeCredentials(edge.source, connectorName)
+      credentials[edge.target] = this.makeCredentials(edge.target, connectorName)
     }
     return credentials
   }
@@ -91,8 +91,8 @@ class ServiceGraph {
   * setupConnectorAccounts (connectorName) {
     const connector = this.connectors[connectorName]
     for (const edge of connector.edges) {
-      yield this.services.updateAccount(edge.source, connectorName, {balance: '1000'})
-      yield this.services.updateAccount(edge.target, connectorName, {balance: '1000'})
+      yield this.services.updateAccount(this.services.ledgers[edge.source], connectorName, {balance: '1000'})
+      yield this.services.updateAccount(this.services.ledgers[edge.target], connectorName, {balance: '1000'})
     }
   }
 
@@ -101,14 +101,15 @@ class ServiceGraph {
       yield this.services.assertBalance(ledgerHost, 'hold', '0')
     }
   }
-}
 
-function makeCredentials (ledger, name) {
-  return {
-    id: 'http://' + ledger,
-    account: 'http://' + ledger + '/accounts/' + encodeURIComponent(name),
-    username: name,
-    password: name
+  makeCredentials (ledger, name) {
+    const ledgerHost = this.services.ledgers[ledger]
+    return {
+      id: ledgerHost,
+      account: ledgerHost + '/accounts/' + encodeURIComponent(name),
+      username: name,
+      password: name
+    }
   }
 }
 

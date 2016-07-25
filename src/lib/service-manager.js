@@ -42,6 +42,7 @@ class ServiceManager {
     this.npmPath = process.env.npm_execpath
     this.hasCustomNPM = this.nodePath && this.npmPath
     this.processes = []
+    this.ledgers = {} // { name ⇒ host }
 
     const depsDir = path.resolve(this.testDir, 'node_modules')
     this.Client = require(path.resolve(depsDir, 'ilp-core')).Client
@@ -89,6 +90,7 @@ class ServiceManager {
 
   startLedger (name, port, options) {
     const dbPath = path.resolve(this.dataDir, './' + name + '.sqlite')
+    this.ledgers[name] = 'http://localhost:' + port
     return this._npm(['start'], 'ledger:' + port, {
       env: Object.assign({}, COMMON_ENV, {
         LEDGER_DB_URI: 'sqlite://' + dbPath,
@@ -204,11 +206,12 @@ class ServiceManager {
 
   * sendPayment (params) {
     const sourceAddress = parseAddress(params.sourceAccount)
+    const sourceLedgerHost = this.ledgers[sourceAddress.ledger]
     const client = new this.Client({
       plugin: this.FiveBellsLedger,
       prefix: params.sourceAccount,
       auth: {
-        account: 'http://' + sourceAddress.ledger + '/accounts/' + sourceAddress.username,
+        account: sourceLedgerHost + '/accounts/' + sourceAddress.username,
         password: params.sourcePassword
       }
     })
