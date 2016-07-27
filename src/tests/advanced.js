@@ -13,39 +13,39 @@ const receiverSecret = 'O8Y6+6bJgl2i285yCeC/Wigi6P6TJ4C78tdASqDOR9g='
 
 describe('Advanced', function () {
   before(function * () {
-    yield graph.startLedger('test2.ledger1', 3101, {scale: 4})
-    yield graph.startLedger('test2.ledger2', 3102, {scale: 2})
-    yield graph.startLedger('test2.ledger3', 3103, {scale: 4})
-    yield graph.startLedger('test2.ledger4', 3104, {scale: 4})
+    yield graph.startLedger('test2.ledger1.', 3101, {scale: 4})
+    yield graph.startLedger('test2.ledger2.', 3102, {scale: 2})
+    yield graph.startLedger('test2.ledger3.', 3103, {scale: 4})
+    yield graph.startLedger('test2.ledger4.', 3104, {scale: 4})
 
-    yield graph.startLedger('test2.ledger5', 3105, {scale: 4})
-    yield graph.startLedger('test2.ledger6', 3106, {scale: 4})
-    yield graph.startLedger('test2.ledger7', 3107, {scale: 4})
+    yield graph.startLedger('test2.ledger5.', 3105, {scale: 4})
+    yield graph.startLedger('test2.ledger6.', 3106, {scale: 4})
+    yield graph.startLedger('test2.ledger7.', 3107, {scale: 4})
 
     yield graph.setupAccounts()
 
     yield graph.startConnector('mark2', 4101, {
-      edges: [{source: 'test2.ledger1', target: 'test2.ledger2'}]
+      edges: [{source: 'test2.ledger1.', target: 'test2.ledger2.'}]
     })
 
     yield graph.startConnector('mary2', 4102, {
-      edges: [{source: 'test2.ledger1', target: 'test2.ledger3'}],
+      edges: [{source: 'test2.ledger1.', target: 'test2.ledger3.'}],
       slippage: '0'
     })
 
     yield graph.startConnector('martin2', 4103, {
-      edges: [{source: 'test2.ledger1', target: 'test2.ledger4'}],
+      edges: [{source: 'test2.ledger1.', target: 'test2.ledger4.'}],
       fxSpread: '0.5'
     })
 
     yield graph.startConnector('millie2', 4104, {
-      edges: [{source: 'test2.ledger1', target: 'test2.ledger5'}]
+      edges: [{source: 'test2.ledger1.', target: 'test2.ledger5.'}]
     })
     yield graph.startConnector('mia2', 4105, {
-      edges: [{source: 'test2.ledger5', target: 'test2.ledger6'}]
+      edges: [{source: 'test2.ledger5.', target: 'test2.ledger6.'}]
     })
     yield graph.startConnector('mike2', 4106, {
-      edges: [{source: 'test2.ledger6', target: 'test2.ledger7'}]
+      edges: [{source: 'test2.ledger6.', target: 'test2.ledger7.'}]
     })
 
     yield services.startNotary('notary2_1', 6101, {

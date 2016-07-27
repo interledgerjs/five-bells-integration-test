@@ -209,8 +209,8 @@ class ServiceManager {
     const sourceLedgerHost = this.ledgers[sourceAddress.ledger]
     const client = new this.Client({
       plugin: this.FiveBellsLedger,
-      prefix: params.sourceAccount,
       auth: {
+        prefix: sourceAddress.ledger,
         account: sourceLedgerHost + '/accounts/' + sourceAddress.username,
         password: params.sourcePassword
       }
@@ -243,7 +243,7 @@ class ServiceManager {
 function parseAddress (address) {
   const addressParts = address.split('.')
   return {
-    ledger: addressParts.slice(0, -1).join('.'),
+    ledger: addressParts.slice(0, -1).join('.') + '.',
     username: addressParts[addressParts.length - 1]
   }
 }

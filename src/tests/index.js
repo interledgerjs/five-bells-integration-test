@@ -14,21 +14,21 @@ const graph = new ServiceGraph(services)
 
 describe('Basic', function () {
   before(function * () {
-    yield graph.startLedger('test1.ledger1', 3001, {})
-    yield graph.startLedger('test1.ledger2', 3002, {})
-    yield graph.startLedger('test1.ledger3', 3003, {})
+    yield graph.startLedger('test1.ledger1.', 3001, {})
+    yield graph.startLedger('test1.ledger2.', 3002, {})
+    yield graph.startLedger('test1.ledger3.', 3003, {})
 
     yield graph.setupAccounts()
 
     yield graph.startConnector('mark', 4001, {
       edges: [
-        {source: 'test1.ledger1', target: 'test1.ledger2'}
+        {source: 'test1.ledger1.', target: 'test1.ledger2.'}
       ]
     })
 
     yield graph.startConnector('mary', 4002, {
       edges: [
-        {source: 'test1.ledger2', target: 'test1.ledger3'}
+        {source: 'test1.ledger2.', target: 'test1.ledger3.'}
       ]
     })
 
