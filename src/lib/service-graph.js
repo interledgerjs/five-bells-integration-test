@@ -49,8 +49,11 @@ class ServiceGraph {
   * startReceiver (port, options) {
     // Receiver accounts have to exist before receiver is started
     yield this.setupAccounts()
-    options.credentials = this.ledgers.map(function (ledger) {
-      return {account: ledger + '/accounts/bob', password: 'bob'}
+    options.credentials = this.ledgers.map(function (ledgerHost) {
+      return {
+        account: ledgerHost + '/accounts/bob',
+        password: 'bob'
+      }
     })
     yield this.services.startReceiver(port, options)
   }
@@ -67,8 +70,8 @@ class ServiceGraph {
   edgesToCredentials (edges, connectorName) {
     const credentials = {}
     for (const edge of edges) {
-      credentials[edge.source] = makeCredentials(edge.source, connectorName)
-      credentials[edge.target] = makeCredentials(edge.target, connectorName)
+      credentials[edge.source] = this.makeCredentials(edge.source, connectorName)
+      credentials[edge.target] = this.makeCredentials(edge.target, connectorName)
     }
     return credentials
   }
@@ -88,17 +91,25 @@ class ServiceGraph {
   * setupConnectorAccounts (connectorName) {
     const connector = this.connectors[connectorName]
     for (const edge of connector.edges) {
-      yield this.services.updateAccount(edge.source, connectorName, {balance: '1000'})
-      yield this.services.updateAccount(edge.target, connectorName, {balance: '1000'})
+      yield this.services.updateAccount(this.services.ledgers[edge.source], connectorName, {balance: '1000'})
+      yield this.services.updateAccount(this.services.ledgers[edge.target], connectorName, {balance: '1000'})
     }
   }
-}
 
-function makeCredentials (ledger, name) {
-  return {
-    account_uri: ledger + '/accounts/' + encodeURIComponent(name),
-    username: name,
-    password: name
+  * assertZeroHold () {
+    for (const ledgerHost of this.ledgers) {
+      yield this.services.assertBalance(ledgerHost, 'hold', '0')
+    }
+  }
+
+  makeCredentials (ledger, name) {
+    const ledgerHost = this.services.ledgers[ledger]
+    return {
+      id: ledgerHost,
+      account: ledgerHost + '/accounts/' + encodeURIComponent(name),
+      username: name,
+      password: name
+    }
   }
 }
 

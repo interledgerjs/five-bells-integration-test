@@ -13,39 +13,39 @@ const receiverSecret = 'O8Y6+6bJgl2i285yCeC/Wigi6P6TJ4C78tdASqDOR9g='
 
 describe('Advanced', function () {
   before(function * () {
-    yield graph.startLedger('ledger2_1', 3101, {scale: 4})
-    yield graph.startLedger('ledger2_2', 3102, {scale: 2})
-    yield graph.startLedger('ledger2_3', 3103, {scale: 4})
-    yield graph.startLedger('ledger2_4', 3104, {scale: 4})
+    yield graph.startLedger('test2.ledger1.', 3101, {scale: 4})
+    yield graph.startLedger('test2.ledger2.', 3102, {scale: 2})
+    yield graph.startLedger('test2.ledger3.', 3103, {scale: 4})
+    yield graph.startLedger('test2.ledger4.', 3104, {scale: 4})
 
-    yield graph.startLedger('ledger2_5', 3105, {scale: 4})
-    yield graph.startLedger('ledger2_6', 3106, {scale: 4})
-    yield graph.startLedger('ledger2_7', 3107, {scale: 4})
+    yield graph.startLedger('test2.ledger5.', 3105, {scale: 4})
+    yield graph.startLedger('test2.ledger6.', 3106, {scale: 4})
+    yield graph.startLedger('test2.ledger7.', 3107, {scale: 4})
 
     yield graph.setupAccounts()
 
     yield graph.startConnector('mark2', 4101, {
-      edges: [{source: 'http://localhost:3101', target: 'http://localhost:3102'}]
+      edges: [{source: 'test2.ledger1.', target: 'test2.ledger2.'}]
     })
 
     yield graph.startConnector('mary2', 4102, {
-      edges: [{source: 'http://localhost:3101', target: 'http://localhost:3103'}],
+      edges: [{source: 'test2.ledger1.', target: 'test2.ledger3.'}],
       slippage: '0'
     })
 
     yield graph.startConnector('martin2', 4103, {
-      edges: [{source: 'http://localhost:3101', target: 'http://localhost:3104'}],
+      edges: [{source: 'test2.ledger1.', target: 'test2.ledger4.'}],
       fxSpread: '0.5'
     })
 
     yield graph.startConnector('millie2', 4104, {
-      edges: [{source: 'http://localhost:3101', target: 'http://localhost:3105'}]
+      edges: [{source: 'test2.ledger1.', target: 'test2.ledger5.'}]
     })
     yield graph.startConnector('mia2', 4105, {
-      edges: [{source: 'http://localhost:3105', target: 'http://localhost:3106'}]
+      edges: [{source: 'test2.ledger5.', target: 'test2.ledger6.'}]
     })
     yield graph.startConnector('mike2', 4106, {
-      edges: [{source: 'http://localhost:3106', target: 'http://localhost:3107'}]
+      edges: [{source: 'test2.ledger6.', target: 'test2.ledger7.'}]
     })
 
     yield services.startNotary('notary2_1', 6101, {
@@ -62,9 +62,9 @@ describe('Advanced', function () {
     it('scale: high → low; by source amount', function * () {
       const receiverId = 'universal-0001'
       yield services.sendPayment({
-        sourceAccount: 'http://localhost:3101/accounts/alice',
+        sourceAccount: 'test2.ledger1.alice',
         sourcePassword: 'alice',
-        destinationAccount: 'http://localhost:3102/accounts/bob',
+        destinationAccount: 'test2.ledger2.bob',
         sourceAmount: '4.9999',
         receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
         destinationMemo: { receiverId }
@@ -89,15 +89,15 @@ describe('Advanced', function () {
       //    104.97    USD (round down)
       yield services.assertBalance('http://localhost:3102', 'bob', '104.97')
       yield services.assertBalance('http://localhost:3102', 'mark2', '995.03')
-      yield services.assertZeroHold()
+      yield graph.assertZeroHold()
     })
 
     it('scale: low → high', function * () {
       const receiverId = 'universal-0002'
       yield services.sendPayment({
-        sourceAccount: 'http://localhost:3102/accounts/alice',
+        sourceAccount: 'test2.ledger2.alice',
         sourcePassword: 'alice',
-        destinationAccount: 'http://localhost:3101/accounts/bob',
+        destinationAccount: 'test2.ledger1.bob',
         sourceAmount: '4.99',
         receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
         destinationMemo: { receiverId }
@@ -122,15 +122,15 @@ describe('Advanced', function () {
       //    104.9749  USD (round down)
       yield services.assertBalance('http://localhost:3101', 'bob', '104.9749')
       yield services.assertBalance('http://localhost:3101', 'mark2', '995.0251')
-      yield services.assertZeroHold()
+      yield graph.assertZeroHold()
     })
 
     it('zero slippage', function * () {
       const receiverId = 'universal-0003'
       yield services.sendPayment({
-        sourceAccount: 'http://localhost:3101/accounts/alice',
+        sourceAccount: 'test2.ledger1.alice',
         sourcePassword: 'alice',
-        destinationAccount: 'http://localhost:3103/accounts/bob',
+        destinationAccount: 'test2.ledger3.bob',
         sourceAmount: '5',
         receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
         destinationMemo: { receiverId }
@@ -154,15 +154,15 @@ describe('Advanced', function () {
       //    104.9899 USD
       yield services.assertBalance('http://localhost:3103', 'bob', '104.9899')
       yield services.assertBalance('http://localhost:3103', 'mary2', '995.0101')
-      yield services.assertZeroHold()
+      yield graph.assertZeroHold()
     })
 
     it('high spread', function * () {
       const receiverId = 'universal-0004'
       yield services.sendPayment({
-        sourceAccount: 'http://localhost:3101/accounts/alice',
+        sourceAccount: 'test2.ledger1.alice',
         sourcePassword: 'alice',
-        destinationAccount: 'http://localhost:3104/accounts/bob',
+        destinationAccount: 'test2.ledger4.bob',
         sourceAmount: '5',
         receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
         destinationMemo: { receiverId }
@@ -186,19 +186,21 @@ describe('Advanced', function () {
       //    102.4974 USD
       yield services.assertBalance('http://localhost:3104', 'bob', '102.4974')
       yield services.assertBalance('http://localhost:3104', 'martin2', '997.5026')
-      yield services.assertZeroHold()
+      yield graph.assertZeroHold()
     })
 
     it('many hops', function * () {
       // Send payment 1→5→6→7
       const receiverId = 'universal-0005'
       yield services.sendPayment({
-        sourceAccount: 'http://localhost:3101/accounts/alice',
+        sourceAccount: 'test2.ledger1.alice',
         sourcePassword: 'alice',
-        destinationAccount: 'http://localhost:3107/accounts/bob',
+        destinationAccount: 'test2.ledger7.bob',
         sourceAmount: '4.9999',
         receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-        destinationMemo: { receiverId }
+        destinationMemo: { receiverId },
+        destinationPrecision: '10',
+        destinationScale: '4'
       })
       yield Promise.delay(2000)
       // Alice should have:
@@ -246,7 +248,7 @@ describe('Advanced', function () {
       //    104.9646    USD (round destination down)
       yield services.assertBalance('http://localhost:3107', 'bob', '104.9646')
       yield services.assertBalance('http://localhost:3107', 'mike2', '995.0354')
-      yield services.assertZeroHold()
+      yield graph.assertZeroHold()
     })
   })
 })
