@@ -97,11 +97,10 @@ describe('Basic', function () {
       //  -   0.01   USD (connector spread/fee)
       //  -   0.0001 USD (connector rounding in its favor)
       //  -   0.005  USD (mark: quoted connector slippage)
-      //  -   0.0001 USD (mark: 1/10^scale)
       //  ==============
-      //     94.9848 USD
-      yield services.assertBalance('http://localhost:3001', 'alice', '94.9848')
-      yield services.assertBalance('http://localhost:3001', 'mark', '1005.0152')
+      //     94.9849 USD
+      yield services.assertBalance('http://localhost:3001', 'alice', '94.9849')
+      yield services.assertBalance('http://localhost:3001', 'mark', '1005.0151')
 
       // Bob should have:
       //    100      USD
@@ -137,11 +136,10 @@ describe('Basic', function () {
       //  +   5      USD (money from Alice)
       //  -   0.01   USD (connector spread/fee)
       //  -   0.005  USD (mark: quoted connector slippage)
-      //  -   0.0001 USD (mark: 1/10^scale)
       //  ==============
-      //    104.9849  USD
-      yield services.assertBalance('http://localhost:3002', 'bob', '104.9849')
-      yield services.assertBalance('http://localhost:3002', 'mark', '995.0151')
+      //    104.9850  USD
+      yield services.assertBalance('http://localhost:3002', 'bob', '104.985')
+      yield services.assertBalance('http://localhost:3002', 'mark', '995.015')
       yield graph.assertZeroHold()
     })
 
@@ -192,16 +190,15 @@ describe('Basic', function () {
       //  -   0.01   USD (mary: connector spread/fee)
       //  -   0.0001 USD (mary: 1/10^scale)
       //  -   0.01   USD (mark: connector spread/fee)
-      //  -   0.0001 USD (mark: 1/10^scale)
       //  -   0.005  USD (mark: quoted connector slippage)
       //  -   0.0001 USD (mark: round source amount up)
       //  ==============
-      //     94.9747 USD
-      yield services.assertBalance('http://localhost:3001', 'alice', '94.9747')
-      yield services.assertBalance('http://localhost:3001', 'mark', '1005.0253')
+      //     94.9748 USD
+      yield services.assertBalance('http://localhost:3001', 'alice', '94.9748')
+      yield services.assertBalance('http://localhost:3001', 'mark', '1005.0252')
 
-      yield services.assertBalance('http://localhost:3002', 'mark', '994.9848')
-      yield services.assertBalance('http://localhost:3002', 'mary', '1005.0152')
+      yield services.assertBalance('http://localhost:3002', 'mark', '994.9849')
+      yield services.assertBalance('http://localhost:3002', 'mary', '1005.0151')
 
       // Bob should have:
       //    100      USD
@@ -225,21 +222,20 @@ describe('Basic', function () {
       })
       yield Promise.delay(2000)
       // Alice should have:
-      //    100      USD
-      //  -   0.01   USD (sent to Bob)
+      //    100       USD
+      //  -   0.01    USD (sent to Bob)
       //  -   0.00002 USD (mary: connector spread/fee)
       //  -   0.0001  USD (mary: 1/10^scale)
       //  -   0.00002 USD (mark: connector spread/fee)
-      //  -   0.0001  USD (mark: 1/10^scale)
       //  -   0.00001 USD (mark: quoted connector slippage)
       //  -   0.00005 USD (mark: round source amount up)
       //  ===============
-      //     99.9897  USD
-      yield services.assertBalance('http://localhost:3001', 'alice', '99.9897')
-      yield services.assertBalance('http://localhost:3001', 'mark', '1000.0103')
+      //     99.9898  USD
+      yield services.assertBalance('http://localhost:3001', 'alice', '99.9898')
+      yield services.assertBalance('http://localhost:3001', 'mark', '1000.0102')
 
-      yield services.assertBalance('http://localhost:3002', 'mark', '999.9898')
-      yield services.assertBalance('http://localhost:3002', 'mary', '1000.0102')
+      yield services.assertBalance('http://localhost:3002', 'mark', '999.9899')
+      yield services.assertBalance('http://localhost:3002', 'mary', '1000.0101')
 
       // Bob should have:
       //    100      USD
@@ -281,13 +277,12 @@ describe('Basic', function () {
       //  -   0.00002 USD (mary: connector spread/fee)
       //  -   0.0001  USD (mary: 1/10^scale)
       //  -   0.00002 USD (mark: connector spread/fee)
-      //  -   0.0001  USD (mark: 1/10^scale)
       //  -   0.00001 USD (mark: quoted connector slippage)
       //  -   0.00005 USD (mark: round destination amount down)
       //  ==============
-      //    100.0097  USD
-      yield services.assertBalance('http://localhost:3003', 'Bob', '100.0097')
-      yield services.assertBalance('http://localhost:3003', 'mary', '999.9903')
+      //    100.0098  USD
+      yield services.assertBalance('http://localhost:3003', 'bob', '100.0098')
+      yield services.assertBalance('http://localhost:3003', 'mary', '999.9902')
       yield graph.assertZeroHold()
     })
   })
@@ -311,12 +306,11 @@ describe('Basic', function () {
       //  -   5      USD (sent to Bob)
       //  -   0.01   USD (connector spread/fee)
       //  -   0.0001 USD (connector rounding in its favor)
-      //  -   0.0001 USD (mark: 1/10^scale)
       //  -   0.005  USD (mark: quoted connector slippage)
       //  ==============
-      //     94.9848 USD
-      yield services.assertBalance('http://localhost:3001', 'alice', '94.9848')
-      yield services.assertBalance('http://localhost:3001', 'mark', '1005.0152')
+      //     94.9849 USD
+      yield services.assertBalance('http://localhost:3001', 'alice', '94.9849')
+      yield services.assertBalance('http://localhost:3001', 'mark', '1005.0151')
 
       // Bob should have:
       //    100      USD
@@ -346,12 +340,11 @@ describe('Basic', function () {
       //  -   5      USD (sent to Bob)
       //  -   0.01   USD (connector spread/fee)
       //  -   0.0001 USD (connector rounding in its favor)
-      //  -   0.0001 USD (mark: 1/10^scale)
       //  -   0.005  USD (mark: quoted connector slippage)
       //  ==============
-      //     94.9848 USD
-      yield services.assertBalance('http://localhost:3001', 'alice', '94.9848')
-      yield services.assertBalance('http://localhost:3001', 'mark', '1005.0152')
+      //     94.9849 USD
+      yield services.assertBalance('http://localhost:3001', 'alice', '94.9849')
+      yield services.assertBalance('http://localhost:3001', 'mark', '1005.0151')
 
       // Bob should have:
       //    100      USD
