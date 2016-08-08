@@ -5,6 +5,7 @@ const fs = require('fs')
 const path = require('path')
 const fetch = require('node-fetch')
 const spawn = require('../util').spawn
+const gitBranch = require('git-branch')
 
 const DEFAULT_DEPENDENCIES = {
   'five-bells-ledger': 'interledger/five-bells-ledger#master',
@@ -46,7 +47,12 @@ class DependencyManager {
    * @return {String|null} Branch under test
    */
   getBranchNameUnderTest () {
-    const branch = process.env.CIRCLE_BRANCH
+    let branch = process.env.CIRCLE_BRANCH
+    if (!branch) {
+      try {
+        branch = gitBranch.sync(this.workDir)
+      } catch (e) {}
+    }
     if (typeof branch !== 'string') return null
     else if (branch === 'master') return null
     else return branch
