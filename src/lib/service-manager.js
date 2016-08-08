@@ -208,12 +208,10 @@ class ServiceManager {
     const sourceAddress = parseAddress(params.sourceAccount)
     const sourceLedgerHost = this.ledgers[sourceAddress.ledger]
     const client = new this.Client({
-      plugin: this.FiveBellsLedger,
-      auth: {
-        prefix: sourceAddress.ledger,
-        account: sourceLedgerHost + '/accounts/' + sourceAddress.username,
-        password: params.sourcePassword
-      }
+      _plugin: this.FiveBellsLedger,
+      prefix: sourceAddress.ledger,
+      account: sourceLedgerHost + '/accounts/' + sourceAddress.username,
+      password: params.sourcePassword
     })
     yield client.connect()
     const quote = yield client.quote({
