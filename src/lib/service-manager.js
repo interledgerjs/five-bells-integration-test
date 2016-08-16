@@ -113,6 +113,7 @@ class ServiceManager {
         CONNECTOR_CREDENTIALS: JSON.stringify(options.credentials),
         CONNECTOR_PAIRS: JSON.stringify(options.pairs),
         CONNECTOR_MAX_HOLD_TIME: 60,
+        CONNECTOR_ROUTE_BROADCAST_ENABLED: options.routeBroadcastEnabled === undefined || options.routeBroadcastEnabled,
         CONNECTOR_ROUTE_BROADCAST_INTERVAL: 10 * 60 * 1000,
         CONNECTOR_ROUTE_EXPIRY: 11 * 60 * 1000, // don't expire routes
         CONNECTOR_FX_SPREAD: options.fxSpread || '',
@@ -229,6 +230,12 @@ class ServiceManager {
       executionCondition: params.receiptCondition,
       unsafeOptimisticTransport: params.unsafeOptimisticTransport
     }, quote))
+  }
+
+  * sendRoutes (connectorHost, routes) {
+    yield request
+      .post(connectorHost + '/routes')
+      .send(routes)
   }
 
   * assertBalance (ledger, name, expectedBalance) {

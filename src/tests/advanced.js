@@ -24,6 +24,11 @@ describe('Advanced', function () {
 
     yield graph.startLedger('test2.ledger8.', 3108, {scale: 2})
 
+    yield graph.startLedger('test2.group1.ledger1.', 3109, {scale: 4})
+    yield graph.startLedger('test2.group1.ledger2.', 3110, {scale: 4})
+    yield graph.startLedger('test2.group2.ledger1.', 3111, {scale: 4})
+    yield graph.startLedger('test2.group2.ledger2.', 3112, {scale: 4})
+
     yield graph.setupAccounts()
 
     yield graph.startConnector('mark2', 4101, {
@@ -54,6 +59,17 @@ describe('Advanced', function () {
       edges: [{source: 'test2.ledger2.', target: 'test2.ledger8.'}],
       fxSpread: (1 - 0.877980).toFixed(8),
       slippage: '0'
+    })
+
+    yield graph.startConnector('michelle2', 4108, {
+      edges: [{source: 'test2.group1.ledger1.', target: 'test2.group1.ledger2.'}]
+    })
+    yield graph.startConnector('milo2', 4109, {
+      edges: [{source: 'test2.group1.ledger2.', target: 'test2.group2.ledger1.'}],
+      routeBroadcastEnabled: false
+    })
+    yield graph.startConnector('miles2', 4110, {
+      edges: [{source: 'test2.group2.ledger1.', target: 'test2.group2.ledger2.'}]
     })
 
     yield services.startNotary('notary2_1', 6101, {
@@ -312,6 +328,46 @@ describe('Advanced', function () {
       yield services.assertBalance('http://localhost:3108', 'bob', '110')
       yield services.assertBalance('http://localhost:3108', 'mesrop2', '990')
       yield graph.assertZeroHold()
+    })
+
+    it('routes payments to unknown ledgers to nearby connectors', function * () {
+      const receiverId = 'universal-0008'
+      yield services.sendRoutes('http://localhost:4108', [{
+        source_ledger: 'test2.group1.ledger2.',
+        destination_ledger: 'test2.group2.',
+        connector: 'http://localhost:4109',
+        min_message_window: 5,
+        source_account: 'test2.group1.ledger2.milo2',
+        // This curve is only used for route selection, not for quoting amounts.
+        points: [ [0, 0], [1000, 2000] ]
+      }])
+      yield services.sendPayment({
+        sourceAccount: 'test2.group1.ledger1.alice',
+        sourcePassword: 'alice',
+        destinationAccount: 'test2.group2.ledger2.bob',
+        sourceAmount: '4.9999',
+        receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
+        destinationMemo: { receiverId },
+        destinationPrecision: '10',
+        destinationScale: '4'
+      })
+      yield Promise.delay(2000)
+
+      // Amounts/calculations (except for the last one) are identical to the "many hops" test.
+      yield services.assertBalance('http://localhost:3109', 'alice', '95.0001')
+      yield services.assertBalance('http://localhost:3109', 'michelle2', '1004.9999')
+
+      yield services.assertBalance('http://localhost:3110', 'michelle2', '995.0101')
+      yield services.assertBalance('http://localhost:3110', 'milo2', '1004.9899')
+
+      yield services.assertBalance('http://localhost:3111', 'milo2', '995.0201')
+      yield services.assertBalance('http://localhost:3111', 'miles2', '1004.9799')
+
+      // This isn't 104.9647 because by using an intermediate quote that is
+      // nearer to the final ledger we can get a slightly better (i.e. less
+      // pessimistic) quote (one less rounding shift).
+      yield services.assertBalance('http://localhost:3112', 'bob', '104.9648')
+      yield services.assertBalance('http://localhost:3112', 'miles2', '995.0352')
     })
   })
 })

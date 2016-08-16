@@ -105,7 +105,6 @@ class ServiceGraph {
   makeCredentials (ledger, name) {
     const ledgerHost = this.services.ledgers[ledger]
     return {
-      id: ledgerHost,
       account: ledgerHost + '/accounts/' + encodeURIComponent(name),
       username: name,
       password: name
