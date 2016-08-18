@@ -12,6 +12,7 @@ const DEFAULT_DEPENDENCIES = {
   'five-bells-connector': 'interledger/five-bells-connector#master',
   'five-bells-notary': 'interledger/five-bells-notary#master',
   'five-bells-receiver': 'interledger/five-bells-receiver#master',
+  'ilp': 'interledger/js-ilp#master',
   'ilp-core': 'interledger/js-ilp-core#master',
   'ilp-plugin-bells': 'interledger/js-ilp-plugin-bells#master',
   'sqlite3': '~3.1.0'

@@ -46,16 +46,20 @@ class ServiceGraph {
     yield this.services.startConnector(name, port, options)
   }
 
-  * startReceiver (port, options) {
-    // Receiver accounts have to exist before receiver is started
-    yield this.setupAccounts()
-    options.credentials = this.ledgers.map(function (ledgerHost) {
-      return {
-        account: ledgerHost + '/accounts/bob',
-        password: 'bob'
-      }
-    })
-    yield this.services.startReceiver(port, options)
+  /**
+   * @param {Object} options
+   * @param {String} options.secret
+   */
+  * startReceivers (options) {
+    const hmacKey = new Buffer(options.secret, 'base64')
+    for (const ledger in this.services.ledgers) {
+      yield this.services.startReceiver({
+        prefix: ledger,
+        account: this.services.ledgers[ledger] + '/accounts/bob',
+        password: 'bob',
+        hmacKey: hmacKey
+      })
+    }
   }
 
   edgesToPairs (edges) {
