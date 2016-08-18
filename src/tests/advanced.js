@@ -77,21 +77,18 @@ describe('Advanced', function () {
       publicKey: notaryPublicKey
     })
 
-    yield graph.startReceiver(7101, {secret: receiverSecret})
+    yield graph.startReceivers({secret: receiverSecret})
   })
 
   beforeEach(function * () { yield graph.setupAccounts() })
 
   describe('send universal payment', function () {
     it('scale: high → low; by source amount', function * () {
-      const receiverId = 'universal-0001'
       yield services.sendPayment({
         sourceAccount: 'test2.ledger1.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test2.ledger2.bob',
-        sourceAmount: '4.9999',
-        receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-        destinationMemo: { receiverId }
+        sourceAmount: '4.9999'
       })
       yield Promise.delay(2000)
       // Alice should have:
@@ -116,14 +113,11 @@ describe('Advanced', function () {
     })
 
     it('scale: low → high', function * () {
-      const receiverId = 'universal-0002'
       yield services.sendPayment({
         sourceAccount: 'test2.ledger2.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test2.ledger1.bob',
-        sourceAmount: '4.99',
-        receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-        destinationMemo: { receiverId }
+        sourceAmount: '4.99'
       })
       yield Promise.delay(2000)
       // Alice should have:
@@ -148,14 +142,11 @@ describe('Advanced', function () {
     })
 
     it('zero slippage', function * () {
-      const receiverId = 'universal-0003'
       yield services.sendPayment({
         sourceAccount: 'test2.ledger1.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test2.ledger3.bob',
-        sourceAmount: '5',
-        receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-        destinationMemo: { receiverId }
+        sourceAmount: '5'
       })
       yield Promise.delay(2000)
       // Alice should have:
@@ -179,14 +170,11 @@ describe('Advanced', function () {
     })
 
     it('high spread', function * () {
-      const receiverId = 'universal-0004'
       yield services.sendPayment({
         sourceAccount: 'test2.ledger1.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test2.ledger4.bob',
-        sourceAmount: '5',
-        receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-        destinationMemo: { receiverId }
+        sourceAmount: '5'
       })
       yield Promise.delay(2000)
       // Alice should have:
@@ -211,14 +199,11 @@ describe('Advanced', function () {
 
     it('many hops', function * () {
       // Send payment 1→5→6→7
-      const receiverId = 'universal-0005'
       yield services.sendPayment({
         sourceAccount: 'test2.ledger1.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test2.ledger7.bob',
         sourceAmount: '4.9999',
-        receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-        destinationMemo: { receiverId },
         destinationPrecision: '10',
         destinationScale: '4'
       })
@@ -269,14 +254,11 @@ describe('Advanced', function () {
     })
 
     it('rate check (by source amount)', function * () {
-      const receiverId = 'universal-0006'
       yield services.sendPayment({
         sourceAccount: 'test2.ledger2.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test2.ledger8.bob',
-        sourceAmount: '10',
-        receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-        destinationMemo: { receiverId }
+        sourceAmount: '10'
       })
       yield Promise.delay(2000)
       // Alice should have:
@@ -300,14 +282,11 @@ describe('Advanced', function () {
     })
 
     it('rate check (by destination amount)', function * () {
-      const receiverId = 'universal-0007'
       yield services.sendPayment({
         sourceAccount: 'test2.ledger2.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test2.ledger8.bob',
-        destinationAmount: '10',
-        receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-        destinationMemo: { receiverId }
+        destinationAmount: '10'
       })
       yield Promise.delay(2000)
       // Alice should have:
@@ -331,7 +310,6 @@ describe('Advanced', function () {
     })
 
     it('routes payments to unknown ledgers to nearby connectors', function * () {
-      const receiverId = 'universal-0008'
       yield services.sendRoutes('http://localhost:4108', [{
         source_ledger: 'test2.group1.ledger2.',
         destination_ledger: 'test2.group2.',
@@ -346,8 +324,6 @@ describe('Advanced', function () {
         sourcePassword: 'alice',
         destinationAccount: 'test2.group2.ledger2.bob',
         sourceAmount: '4.9999',
-        receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-        destinationMemo: { receiverId },
         destinationPrecision: '10',
         destinationScale: '4'
       })

@@ -1,8 +1,6 @@
 'use strict'
 
-const crypto = require('crypto')
 const assert = require('assert')
-const cc = require('five-bells-condition')
 const path = require('path')
 const Promise = require('bluebird-co')
 const request = require('superagent')
@@ -43,10 +41,12 @@ class ServiceManager {
     this.hasCustomNPM = this.nodePath && this.npmPath
     this.processes = []
     this.ledgers = {} // { name ⇒ host }
+    this.receivers = {} // { name ⇒ Receiver }
 
     const depsDir = path.resolve(this.testDir, 'node_modules')
     this.Client = require(path.resolve(depsDir, 'ilp-core')).Client
     this.FiveBellsLedger = require(path.resolve(depsDir, 'ilp-plugin-bells'))
+    this.ilp = require(path.resolve(depsDir, 'ilp'))
 
     process.on('exit', this.killAll.bind(this))
     process.on('uncaughtException', this.killAll.bind(this))
@@ -145,16 +145,19 @@ class ServiceManager {
     }, 'http://localhost:' + port + '/health')
   }
 
-  startReceiver (port, options) {
-    return this._npm(['start'], 'receiver:' + port, {
-      env: Object.assign({}, COMMON_ENV, {
-        RECEIVER_PORT: port,
-        RECEIVER_HOSTNAME: 'localhost',
-        RECEIVER_SECRET: options.secret,
-        RECEIVER_CREDENTIALS: JSON.stringify(options.credentials || [])
-      }),
-      cwd: path.resolve(this.testDir, 'node_modules/five-bells-receiver')
-    }, 'http://localhost:' + port + '/health')
+  /**
+   * @param {Object} credentials
+   * @param {IlpAddress} credentials.prefix
+   * @param {URI} credentials.account
+   * @param {String} credentials.password
+   * @param {Buffer} credentials.hmacKey
+   * @returns {Promise}
+   */
+  startReceiver (credentials) {
+    const receiver = this.receivers[credentials.prefix] =
+      this.ilp.createReceiver(
+        Object.assign({ _plugin: this.FiveBellsLedger }, credentials))
+    return receiver.listen()
   }
 
   /**
@@ -195,41 +198,56 @@ class ServiceManager {
     return Promise.coroutine(this._getBalance.bind(this))(ledger, name, options || {})
   }
 
-  createReceiptCondition (receiverSecret, receiverId) {
-    const secret = crypto
-      .createHmac('sha256', new Buffer(receiverSecret, 'base64'))
-      .update(receiverId)
-      .digest()
-    const condition = new cc.PreimageSha256()
-    condition.setPreimage(secret)
-    return condition.getConditionUri()
-  }
-
-  * sendPayment (params) {
+  sendPayment (params) {
     const sourceAddress = parseAddress(params.sourceAccount)
     const sourceLedgerHost = this.ledgers[sourceAddress.ledger]
-    const client = new this.Client({
+    const clientOpts = {
       _plugin: this.FiveBellsLedger,
       prefix: sourceAddress.ledger,
       account: sourceLedgerHost + '/accounts/' + sourceAddress.username,
       password: params.sourcePassword
-    })
+    }
+    return params.sourceAmount
+      ? this.sendPaymentBySourceAmount(clientOpts, params)
+      : this.sendPaymentByDestinationAmount(clientOpts, params)
+  }
+
+  * sendPaymentBySourceAmount (clientOpts, params) {
+    const client = new this.Client(clientOpts)
     yield client.connect()
+
     const quote = yield client.quote({
-      destinationAddress: params.destinationAccount,
       sourceAmount: params.sourceAmount,
-      destinationAmount: params.destinationAmount,
+      destinationAddress: params.destinationAccount,
       destinationPrecision: params.destinationPrecision,
       destinationScale: params.destinationScale
     })
+    const destinationLedger = parseAddress(params.destinationAccount).ledger
+    const paymentRequest = this.receivers[destinationLedger].createRequest(
+      {amount: quote.destinationAmount})
+
     return yield client.sendQuotedPayment(Object.assign({
       destinationAccount: params.destinationAccount,
-      destinationLedger: parseAddress(params.destinationAccount).ledger,
-      destinationMemo: params.destinationMemo,
+      destinationLedger: destinationLedger,
+      destinationMemo: paymentRequest.packet.data,
       expiresAt: (new Date(Date.now() + quote.sourceExpiryDuration * 1000)).toISOString(),
-      executionCondition: params.receiptCondition,
+      executionCondition: params.unsafeOptimisticTransport ? undefined : paymentRequest.condition,
       unsafeOptimisticTransport: params.unsafeOptimisticTransport
     }, quote))
+  }
+
+  * sendPaymentByDestinationAmount (clientOpts, params) {
+    if (params.unsafeOptimisticTransport) {
+      throw new Error('ServiceManager#sendPaymentByDestinationAmount doesn\'t support unsafeOptimisticTransport')
+    }
+
+    const sender = this.ilp.createSender(clientOpts)
+    const destinationLedger = parseAddress(params.destinationAccount).ledger
+    const paymentRequest = this.receivers[destinationLedger].createRequest(
+      {amount: params.destinationAmount})
+    const paymentParams = yield sender.quoteRequest(paymentRequest)
+    const result = yield sender.payRequest(paymentParams)
+    return result
   }
 
   * sendRoutes (connectorHost, routes) {

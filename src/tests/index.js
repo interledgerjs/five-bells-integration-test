@@ -37,7 +37,7 @@ describe('Basic', function () {
       publicKey: notaryPublicKey
     })
 
-    yield graph.startReceiver(7001, {secret: receiverSecret})
+    yield graph.startReceivers({secret: receiverSecret})
   })
 
   beforeEach(function * () { yield graph.setupAccounts() })
@@ -81,14 +81,11 @@ describe('Basic', function () {
 
   describe('send universal payment', function () {
     it('transfers the funds (by destination amount)', function * () {
-      const receiverId = 'universal-0001'
       yield services.sendPayment({
         sourceAccount: 'test1.ledger1.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test1.ledger2.bob',
-        destinationAmount: '5',
-        receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-        destinationMemo: { receiverId }
+        destinationAmount: '5'
       })
       yield Promise.delay(2000)
       // Alice should have:
@@ -113,14 +110,11 @@ describe('Basic', function () {
     })
 
     it('transfers the funds (by source amount)', function * () {
-      const receiverId = 'universal-0002'
       yield services.sendPayment({
         sourceAccount: 'test1.ledger1.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test1.ledger2.bob',
-        sourceAmount: '5',
-        receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-        destinationMemo: { receiverId }
+        sourceAmount: '5'
       })
       yield Promise.delay(2000)
       // Alice should have:
@@ -144,16 +138,13 @@ describe('Basic', function () {
     })
 
     it('fails when there are insufficient source funds', function * () {
-      const receiverId = 'universal-0003'
       let err
       try {
         yield services.sendPayment({
           sourceAccount: 'test1.ledger1.alice',
           sourcePassword: 'alice',
           destinationAccount: 'test1.ledger2.bob',
-          destinationAmount: '500',
-          receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-          destinationMemo: { receiverId }
+          destinationAmount: '500'
         })
       } catch (_err) { err = _err }
       assert.equal(err.status, 422)
@@ -173,14 +164,11 @@ describe('Basic', function () {
     })
 
     it('transfers a payment with 3 steps', function * () {
-      const receiverId = 'universal-0004'
       yield services.sendPayment({
         sourceAccount: 'test1.ledger1.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test1.ledger3.bob',
-        destinationAmount: '5',
-        receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-        destinationMemo: { receiverId }
+        destinationAmount: '5'
       })
       yield Promise.delay(2000)
 
@@ -211,14 +199,11 @@ describe('Basic', function () {
     })
 
     it('transfers a small amount (by destination amount)', function * () {
-      const receiverId = 'universal-0005'
       yield services.sendPayment({
         sourceAccount: 'test1.ledger1.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test1.ledger3.bob',
-        destinationAmount: '0.01',
-        receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-        destinationMemo: { receiverId }
+        destinationAmount: '0.01'
       })
       yield Promise.delay(2000)
       // Alice should have:
@@ -248,14 +233,11 @@ describe('Basic', function () {
     })
 
     it('transfers a small amount (by source amount)', function * () {
-      const receiverId = 'universal-0005'
       yield services.sendPayment({
         sourceAccount: 'test1.ledger1.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test1.ledger3.bob',
         sourceAmount: '0.01',
-        receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-        destinationMemo: { receiverId },
         destinationPrecision: '10',
         destinationScale: '4'
       })
@@ -289,16 +271,13 @@ describe('Basic', function () {
 
   describe('send atomic payment', function () {
     it('transfers the funds', function * () {
-      const receiverId = 'atomic-0001'
       yield services.sendPayment({
         sourceAccount: 'test1.ledger1.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test1.ledger2.bob',
         destinationAmount: '5',
         notary: 'http://localhost:6001',
-        notaryPublicKey,
-        receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-        destinationMemo: { receiverId }
+        notaryPublicKey
       })
       yield Promise.delay(2000)
       // Alice should have:
@@ -325,46 +304,41 @@ describe('Basic', function () {
 
   describe('send optimistic payment', function () {
     it('transfers the funds', function * () {
-      const receiverId = 'optimistic-0001'
       yield services.sendPayment({
         sourceAccount: 'test1.ledger1.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test1.ledger2.bob',
-        destinationAmount: '5',
-        destinationMemo: { receiverId },
+        sourceAmount: '5',
         unsafeOptimisticTransport: true
       })
       yield Promise.delay(2000)
       // Alice should have:
       //    100      USD
       //  -   5      USD (sent to Bob)
-      //  -   0.01   USD (connector spread/fee)
-      //  -   0.0001 USD (connector rounding in its favor)
-      //  -   0.005  USD (mark: quoted connector slippage)
       //  ==============
-      //     94.9849 USD
-      yield services.assertBalance('http://localhost:3001', 'alice', '94.9849')
-      yield services.assertBalance('http://localhost:3001', 'mark', '1005.0151')
+      //     95      USD
+      yield services.assertBalance('http://localhost:3001', 'alice', '95')
+      yield services.assertBalance('http://localhost:3001', 'mark', '1005')
 
       // Bob should have:
       //    100      USD
       //  +   5      USD (money from Alice)
+      //  -   0.01   USD (connector spread/fee)
+      //  -   0.005  USD (mark: quoted connector slippage)
       //  ==============
-      //    105      USD
-      yield services.assertBalance('http://localhost:3002', 'bob', '105')
-      yield services.assertBalance('http://localhost:3002', 'mark', '995')
+      //    104.9850  USD
+      yield services.assertBalance('http://localhost:3002', 'bob', '104.985')
+      yield services.assertBalance('http://localhost:3002', 'mark', '995.015')
       yield graph.assertZeroHold()
     })
 
     it('transfers without hold, so payment can partially succeed', function * () {
-      const receiverId = 'optimistic-0002'
       yield services.updateAccount('http://localhost:3003', 'mary', {balance: '0'})
       yield services.sendPayment({
         sourceAccount: 'test1.ledger1.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test1.ledger3.bob',
         sourceAmount: '5',
-        destinationMemo: { receiverId },
         destinationPrecision: '10',
         destinationScale: '4',
         unsafeOptimisticTransport: true
@@ -390,14 +364,11 @@ describe('Basic', function () {
 
   describe('send same-ledger payment', function () {
     it.skip('transfers the funds', function * () {
-      const receiverId = 'same-ledger-0001'
       yield services.sendPayment({
         sourceAccount: 'test1.ledger1.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test1.ledger1.bob',
-        destinationAmount: '5',
-        receiptCondition: services.createReceiptCondition(receiverSecret, receiverId),
-        destinationMemo: { receiverId }
+        destinationAmount: '5'
       })
       yield Promise.delay(2000)
       // Alice should have:
