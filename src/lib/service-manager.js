@@ -229,7 +229,7 @@ class ServiceManager {
     return yield client.sendQuotedPayment(Object.assign({
       destinationAccount: params.destinationAccount,
       destinationLedger: destinationLedger,
-      destinationMemo: paymentRequest.packet.data,
+      destinationMemo: paymentRequest.data,
       expiresAt: (new Date(Date.now() + quote.sourceExpiryDuration * 1000)).toISOString(),
       executionCondition: params.unsafeOptimisticTransport ? undefined : paymentRequest.condition,
       unsafeOptimisticTransport: params.unsafeOptimisticTransport
