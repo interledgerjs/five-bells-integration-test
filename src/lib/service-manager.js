@@ -126,7 +126,7 @@ class ServiceManager {
         CONNECTOR_NOTIFICATION_VERIFY: true,
         CONNECTOR_NOTIFICATION_KEYS: JSON.stringify(options.notificationKeys)
       }),
-      cwd: path.resolve(this.testDir, 'node_modules/five-bells-connector')
+      cwd: path.resolve(this.testDir, 'node_modules/ilp-connector')
     }, 'http://localhost:' + port + '/health')
   }
 

@@ -9,7 +9,7 @@ const gitBranch = require('git-branch')
 
 const DEFAULT_DEPENDENCIES = {
   'five-bells-ledger': 'interledger/five-bells-ledger#master',
-  'five-bells-connector': 'interledger/five-bells-connector#master',
+  'ilp-connector': 'interledger/js-ilp-connector#master',
   'five-bells-notary': 'interledger/five-bells-notary#master',
   'five-bells-receiver': 'interledger/five-bells-receiver#master',
   'ilp': 'interledger/js-ilp#master',
