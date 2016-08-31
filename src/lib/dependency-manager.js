@@ -8,14 +8,13 @@ const spawn = require('../util').spawn
 const gitBranch = require('git-branch')
 
 const DEFAULT_DEPENDENCIES = {
-  'five-bells-ledger': 'interledger/five-bells-ledger#master',
-  'ilp-connector': 'interledger/js-ilp-connector#master',
-  'five-bells-notary': 'interledger/five-bells-notary#master',
-  'five-bells-receiver': 'interledger/five-bells-receiver#master',
-  'ilp': 'interledger/js-ilp#master',
-  'ilp-core': 'interledger/js-ilp-core#master',
-  'ilp-plugin-bells': 'interledger/js-ilp-plugin-bells#master',
-  'sqlite3': '~3.1.0'
+  'five-bells-ledger': 'interledger/five-bells-ledger',
+  'ilp-connector': 'interledger/js-ilp-connector',
+  'five-bells-notary': 'interledger/five-bells-notary',
+  'five-bells-receiver': 'interledger/five-bells-receiver',
+  'ilp': 'interledger/js-ilp',
+  'ilp-core': 'interledger/js-ilp-core',
+  'ilp-plugin-bells': 'interledger/js-ilp-plugin-bells'
 }
 
 class DependencyManager {
@@ -67,7 +66,8 @@ class DependencyManager {
   checkForBranchOnDependency (dependency) {
     const branch = this.getBranchNameUnderTest()
     if (!branch) return false
-    const url = `https://github.com/interledger/${dependency}/tree/${branch}`
+    const repo = DEFAULT_DEPENDENCIES[dependency]
+    const url = `https://github.com/${repo}/tree/${branch}`
     return fetch(url).then((response) => response.status === 200)
   }
 
@@ -85,6 +85,7 @@ class DependencyManager {
       name: 'five-bells-integration-test-instance',
       private: true,
       dependencies: Object.assign(
+        {'sqlite3': '~3.1.0'},
         DEFAULT_DEPENDENCIES,
         dependencyOverrides
       )
@@ -118,7 +119,8 @@ class DependencyManager {
     const dependencyOverrides = {}
     const branch = this.getBranchNameUnderTest()
     for (let dependency of dependenciesToOverride) {
-      dependencyOverrides[dependency] = `interledger/${dependency}#${branch}`
+      const repo = DEFAULT_DEPENDENCIES[dependency]
+      dependencyOverrides[dependency] = repo + '#' + branch
     }
 
     // Create package.json
