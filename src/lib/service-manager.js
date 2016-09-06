@@ -216,6 +216,10 @@ class ServiceManager {
     const client = new this.Client(clientOpts)
     yield client.connect()
 
+    if (params.onOutgoingCancel) {
+      client.on('outgoing_cancel', params.onOutgoingCancel)
+    }
+
     const quote = yield client.quote({
       sourceAmount: params.sourceAmount,
       destinationAddress: params.destinationAccount,
@@ -226,6 +230,7 @@ class ServiceManager {
     const paymentRequest = this.receivers[destinationLedger].createRequest(
       {amount: quote.destinationAmount})
     const sourceExpiryDuration = quote.sourceExpiryDuration || 5
+    const executionCondition = params.executionCondition || paymentRequest.condition
 
     return yield client.sendQuotedPayment(Object.assign({
       destinationAccount: paymentRequest.address,
@@ -235,7 +240,7 @@ class ServiceManager {
         expires_at: paymentRequest.expires_at,
         data: paymentRequest.data
       },
-      executionCondition: params.unsafeOptimisticTransport ? undefined : paymentRequest.condition,
+      executionCondition: params.unsafeOptimisticTransport ? undefined : executionCondition,
       unsafeOptimisticTransport: params.unsafeOptimisticTransport
     }, quote))
   }

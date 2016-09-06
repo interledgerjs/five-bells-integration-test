@@ -1,5 +1,6 @@
 /*global describe, it, beforeEach, before*/
 'use strict'
+const assert = require('assert')
 const Promise = require('bluebird')
 const ServiceManager = require('../lib/service-manager')
 const ServiceGraph = require('../lib/service-graph')
@@ -344,6 +345,68 @@ describe('Advanced', function () {
       // pessimistic) quote (one less rounding shift).
       yield services.assertBalance('http://localhost:3112', 'bob', '104.9648')
       yield services.assertBalance('http://localhost:3112', 'miles2', '995.0352')
+    })
+
+    it('receiver rejects a payment with a bad execution condition', function * () {
+      let cancelled = false
+      yield services.sendPayment({
+        sourceAccount: 'test2.ledger1.alice',
+        sourcePassword: 'alice',
+        destinationAccount: 'test2.ledger2.bob',
+        sourceAmount: '5',
+        executionCondition: 'cc:3:11:0000000000000000000000000000000000000000000:518',
+        onOutgoingCancel: (transfer, reason) => {
+          assert.equal(reason, 'condition-mismatch')
+          cancelled = true
+        }
+      })
+      yield Promise.delay(2000)
+      assert(cancelled)
+
+      yield services.assertBalance('http://localhost:3101', 'alice', '100')
+      yield services.assertBalance('http://localhost:3101', 'mark2', '1000')
+      yield services.assertBalance('http://localhost:3102', 'bob', '100')
+      yield services.assertBalance('http://localhost:3102', 'mark2', '1000')
+      yield graph.assertZeroHold()
+    })
+
+    it('connector rejects a payment with insufficient liquidity', function * () {
+      yield services.updateAccount('http://localhost:3101', 'alice', {balance: '1950'})
+      // Use up mark's liquidity.
+      yield services.sendPayment({
+        sourceAccount: 'test2.ledger1.alice',
+        sourcePassword: 'alice',
+        destinationAccount: 'test2.ledger2.bob',
+        sourceAmount: '950'
+      })
+      yield Promise.delay(2000)
+
+      yield services.assertBalance('http://localhost:3101', 'alice', '1000') // 1950 - 950
+      yield services.assertBalance('http://localhost:3101', 'mark2', '1950') // 1000 + 950
+      yield services.assertBalance('http://localhost:3102', 'bob', '1047.15') // 100 + ~950
+      yield services.assertBalance('http://localhost:3102', 'mark2', '52.85') // 1000 - ~950
+
+      let cancelled = false
+      // This payment should fail. The quote succeeds without triggering insufficient
+      // liquidity because the BalanceCache only updates once per minute.
+      yield services.sendPayment({
+        sourceAccount: 'test2.ledger1.alice',
+        sourcePassword: 'alice',
+        destinationAccount: 'test2.ledger2.bob',
+        sourceAmount: '90',
+        onOutgoingCancel: (transfer, reason) => {
+          assert.equal(reason, 'destination transfer failed: Remote error: status=422')
+          cancelled = true
+        }
+      })
+      yield Promise.delay(2000)
+      assert(cancelled)
+
+      yield services.assertBalance('http://localhost:3101', 'alice', '1000')
+      yield services.assertBalance('http://localhost:3101', 'mark2', '1950')
+      yield services.assertBalance('http://localhost:3102', 'bob', '1047.15')
+      yield services.assertBalance('http://localhost:3102', 'mark2', '52.85')
+      yield graph.assertZeroHold()
     })
   })
 })
