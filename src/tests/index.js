@@ -363,12 +363,31 @@ describe('Basic', function () {
   })
 
   describe('send same-ledger payment', function () {
-    it.skip('transfers the funds', function * () {
+    it('transfers the funds (by destination amount)', function * () {
       yield services.sendPayment({
         sourceAccount: 'test1.ledger1.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test1.ledger1.bob',
         destinationAmount: '5'
+      })
+      yield Promise.delay(2000)
+      // Alice should have:
+      //    100      USD
+      //  -   5      USD (sent to Bob)
+      //  ==============
+      //     95      USD
+      yield services.assertBalance('http://localhost:3001', 'alice', '95')
+      yield services.assertBalance('http://localhost:3001', 'bob', '105')
+      yield services.assertBalance('http://localhost:3001', 'mark', '1000')
+      yield graph.assertZeroHold()
+    })
+
+    it('transfers the funds (by source amount)', function * () {
+      yield services.sendPayment({
+        sourceAccount: 'test1.ledger1.alice',
+        sourcePassword: 'alice',
+        destinationAccount: 'test1.ledger1.bob',
+        sourceAmount: '5'
       })
       yield Promise.delay(2000)
       // Alice should have:

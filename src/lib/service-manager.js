@@ -225,11 +225,12 @@ class ServiceManager {
     const destinationLedger = parseAddress(params.destinationAccount).ledger
     const paymentRequest = this.receivers[destinationLedger].createRequest(
       {amount: quote.destinationAmount})
+    const sourceExpiryDuration = quote.sourceExpiryDuration || 5
 
     return yield client.sendQuotedPayment(Object.assign({
       destinationAccount: paymentRequest.address,
       destinationLedger: destinationLedger,
-      expiresAt: (new Date(Date.now() + quote.sourceExpiryDuration * 1000)).toISOString(),
+      expiresAt: (new Date(Date.now() + sourceExpiryDuration * 1000)).toISOString(),
       destinationMemo: {
         expires_at: paymentRequest.expires_at,
         data: paymentRequest.data
