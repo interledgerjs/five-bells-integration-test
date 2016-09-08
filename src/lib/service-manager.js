@@ -116,6 +116,7 @@ class ServiceManager {
         CONNECTOR_ROUTE_BROADCAST_ENABLED: options.routeBroadcastEnabled === undefined || options.routeBroadcastEnabled,
         CONNECTOR_ROUTE_BROADCAST_INTERVAL: 10 * 60 * 1000,
         CONNECTOR_ROUTE_EXPIRY: 11 * 60 * 1000, // don't expire routes
+        CONNECTOR_AUTOLOAD_PEERS: true,
         CONNECTOR_FX_SPREAD: options.fxSpread || '',
         CONNECTOR_SLIPPAGE: options.slippage || '',
         CONNECTOR_HOSTNAME: 'localhost',
