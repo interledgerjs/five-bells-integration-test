@@ -371,7 +371,7 @@ describe('Advanced', function () {
         sourcePassword: 'alice',
         destinationAccount: 'test2.ledger2.bob',
         sourceAmount: '90',
-        onOutgoingCancel: (transfer, reason) => {
+        onOutgoingReject: (transfer, reason) => {
           assert.equal(reason, 'destination transfer failed: Remote error: status=422')
           cancelled = true
         }
