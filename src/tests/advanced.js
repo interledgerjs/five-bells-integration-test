@@ -347,29 +347,6 @@ describe('Advanced', function () {
       yield services.assertBalance('http://localhost:3112', 'miles2', '995.0352')
     })
 
-    it('receiver rejects a payment with a bad execution condition', function * () {
-      let cancelled = false
-      yield services.sendPayment({
-        sourceAccount: 'test2.ledger1.alice',
-        sourcePassword: 'alice',
-        destinationAccount: 'test2.ledger2.bob',
-        sourceAmount: '5',
-        executionCondition: 'cc:3:11:0000000000000000000000000000000000000000000:518',
-        onOutgoingCancel: (transfer, reason) => {
-          assert.equal(reason, 'condition-mismatch')
-          cancelled = true
-        }
-      })
-      yield Promise.delay(2000)
-      assert(cancelled)
-
-      yield services.assertBalance('http://localhost:3101', 'alice', '100')
-      yield services.assertBalance('http://localhost:3101', 'mark2', '1000')
-      yield services.assertBalance('http://localhost:3102', 'bob', '100')
-      yield services.assertBalance('http://localhost:3102', 'mark2', '1000')
-      yield graph.assertZeroHold()
-    })
-
     it('connector rejects a payment with insufficient liquidity', function * () {
       yield services.updateAccount('http://localhost:3101', 'alice', {balance: '1950'})
       // Use up mark's liquidity.
