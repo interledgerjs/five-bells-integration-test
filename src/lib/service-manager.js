@@ -217,8 +217,9 @@ class ServiceManager {
     const client = new this.Client(clientOpts)
     yield client.connect()
 
-    if (params.onOutgoingCancel) {
-      client.on('outgoing_cancel', params.onOutgoingCancel)
+    if (params.onOutgoingReject) {
+      client.once('outgoing_reject', params.onOutgoingReject)
+      client.once('outgoing_cancel', params.onOutgoingReject) // TODO remove when no longer needed
     }
 
     const quote = yield client.quote({
