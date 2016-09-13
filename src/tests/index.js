@@ -261,7 +261,7 @@ describe('Basic', function () {
       //  -   0.00002 USD (mark: connector spread/fee)
       //  -   0.00001 USD (mark: quoted connector slippage)
       //  -   0.00005 USD (mark: round destination amount down)
-      //  ==============
+      //  ===============
       //    100.0098  USD
       yield services.assertBalance('http://localhost:3003', 'bob', '100.0098')
       yield services.assertBalance('http://localhost:3003', 'mary', '999.9902')
