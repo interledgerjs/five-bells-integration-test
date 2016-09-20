@@ -146,13 +146,11 @@ describe('Basic', function () {
           destinationAccount: 'test1.ledger2.bob',
           destinationAmount: '500'
         })
-      } catch (_err) { err = _err }
-      assert.equal(err.status, 422)
-      assert.deepEqual(err.response.body, {
-        id: 'InsufficientFundsError',
-        message: 'Sender has insufficient funds.',
-        owner: 'alice'
-      })
+      } catch (_err) {
+        err = _err
+      }
+      assert.equal(err.name, 'NotAcceptedError')
+      assert.equal(err.message, 'Sender has insufficient funds.')
       yield Promise.delay(2000)
 
       // No change to balances:
