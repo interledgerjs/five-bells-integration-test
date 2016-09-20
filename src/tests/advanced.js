@@ -416,7 +416,7 @@ describe('Advanced', function () {
         destinationAccount: 'test2.ledger2.bob',
         sourceAmount: '90',
         onOutgoingReject: (transfer, reason) => {
-          assert.equal(reason, 'destination transfer failed: Remote error: status=422')
+          assert.equal(reason, 'destination transfer failed: Sender has insufficient funds.')
           cancelled = true
         }
       })
