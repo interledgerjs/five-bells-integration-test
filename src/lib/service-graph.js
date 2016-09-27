@@ -23,7 +23,6 @@ class ServiceGraph {
   constructor (services) {
     this.services = services
     this.numLedgers = 0
-    this.ledgers = [] // A list of ledger hosts
     this.connectors = {} // { connectorName ⇒ {edges} }
     this.notificationConditions = {}
   }
@@ -33,7 +32,7 @@ class ServiceGraph {
     this.notificationConditions[host] = notificationConditions[this.numLedgers % 3]
     options.notificationPrivateKey = notificationPrivateKeys[this.numLedgers % 3]
     options.notificationPublicKey = notificationPublicKeys[this.numLedgers % 3]
-    this.numLedgers = this.ledgers.push(host)
+    this.numLedgers++
     return this.services.startLedger(name, port, options)
   }
 
@@ -43,7 +42,7 @@ class ServiceGraph {
     options.credentials = this.edgesToCredentials(options.edges, name)
     options.notificationKeys = this.notificationConditions
     yield this.setupConnectorAccounts(name)
-    yield this.services.startConnector(name, port, options)
+    yield this.services.startConnector(port, options)
   }
 
   /**
@@ -52,10 +51,10 @@ class ServiceGraph {
    */
   * startReceivers (options) {
     const hmacKey = new Buffer(options.secret, 'base64')
-    for (const ledger in this.services.ledgers) {
+    for (const ledgerPrefix in this.services.ledgers) {
       yield this.services.startReceiver({
-        prefix: ledger,
-        account: this.services.ledgers[ledger] + '/accounts/bob',
+        prefix: ledgerPrefix,
+        account: this.services.ledgers[ledgerPrefix] + '/accounts/bob',
         password: 'bob',
         hmacKey: hmacKey
       })
@@ -82,9 +81,9 @@ class ServiceGraph {
 
   * setupAccounts () {
     // Sender/receiver
-    for (const ledger of this.ledgers) {
-      yield this.services.updateAccount(ledger, 'alice', {balance: '100'})
-      yield this.services.updateAccount(ledger, 'bob', {balance: '100'})
+    for (const ledgerPrefix in this.services.ledgers) {
+      yield this.services.updateAccount(ledgerPrefix, 'alice', {balance: '100'})
+      yield this.services.updateAccount(ledgerPrefix, 'bob', {balance: '100'})
     }
     // Connectors
     for (const connectorName in this.connectors) {
@@ -95,19 +94,19 @@ class ServiceGraph {
   * setupConnectorAccounts (connectorName) {
     const connector = this.connectors[connectorName]
     for (const edge of connector.edges) {
-      yield this.services.updateAccount(this.services.ledgers[edge.source], connectorName, {balance: '1000'})
-      yield this.services.updateAccount(this.services.ledgers[edge.target], connectorName, {balance: '1000'})
+      yield this.services.updateAccount(edge.source, connectorName, {balance: '1000'})
+      yield this.services.updateAccount(edge.target, connectorName, {balance: '1000'})
     }
   }
 
   * assertZeroHold () {
-    for (const ledgerHost of this.ledgers) {
-      yield this.services.assertBalance(ledgerHost, 'hold', '0')
+    for (const ledgerPrefix in this.services.ledgers) {
+      yield this.services.assertBalance(ledgerPrefix, 'hold', '0')
     }
   }
 
-  makeCredentials (ledger, name) {
-    const ledgerHost = this.services.ledgers[ledger]
+  makeCredentials (ledgerPrefix, name) {
+    const ledgerHost = this.services.ledgers[ledgerPrefix]
     return {
       account: ledgerHost + '/accounts/' + encodeURIComponent(name),
       username: name,
