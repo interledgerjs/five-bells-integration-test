@@ -1,11 +1,14 @@
 /*global describe, it, beforeEach, before*/
 'use strict'
+const path = require('path')
 const assert = require('assert')
 const Promise = require('bluebird')
-const ServiceManager = require('../lib/service-manager')
+const ServiceManager = require('five-bells-service-manager')
 const ServiceGraph = require('../lib/service-graph')
 
-const services = new ServiceManager(process.cwd())
+const services = new ServiceManager(
+  path.resolve(process.cwd(), 'node_modules/'),
+  path.resolve(process.cwd(), 'data/'))
 const graph = new ServiceGraph(services)
 
 const notarySecretKey = 'lRmSmT/I2SS5I7+FnFgHbh8XZuu4NeL0wk8oN86L50U='
@@ -86,7 +89,7 @@ describe('Advanced', function () {
       fxSpread: '0'
     })
 
-    yield services.startNotary('notary2_1', 6101, {
+    yield services.startNotary(6101, {
       secretKey: notarySecretKey,
       publicKey: notaryPublicKey
     })
@@ -110,8 +113,8 @@ describe('Advanced', function () {
       //  -   4.9999 USD (sent to Bob)
       //  ==============
       //     95.0001 USD
-      yield services.assertBalance('http://localhost:3101', 'alice', '95.0001')
-      yield services.assertBalance('http://localhost:3101', 'mark2', '1004.9999')
+      yield services.assertBalance('test2.ledger1.', 'alice', '95.0001')
+      yield services.assertBalance('test2.ledger1.', 'mark2', '1004.9999')
 
       // Bob should have:
       //    100       USD
@@ -121,8 +124,8 @@ describe('Advanced', function () {
       //  ===============
       //    104.9851  USD
       //    104.98    USD (round down)
-      yield services.assertBalance('http://localhost:3102', 'bob', '104.98')
-      yield services.assertBalance('http://localhost:3102', 'mark2', '995.02')
+      yield services.assertBalance('test2.ledger2.', 'bob', '104.98')
+      yield services.assertBalance('test2.ledger2.', 'mark2', '995.02')
       yield graph.assertZeroHold()
     })
 
@@ -139,8 +142,8 @@ describe('Advanced', function () {
       //  -   4.99   USD (sent to Bob)
       //  ==============
       //     95.01   USD
-      yield services.assertBalance('http://localhost:3102', 'alice', '95.01')
-      yield services.assertBalance('http://localhost:3102', 'mark2', '1004.99')
+      yield services.assertBalance('test2.ledger2.', 'alice', '95.01')
+      yield services.assertBalance('test2.ledger2.', 'mark2', '1004.99')
 
       // Bob should have:
       //    100       USD
@@ -150,8 +153,8 @@ describe('Advanced', function () {
       //  ===============
       //    104.97504 USD
       //    104.9750  USD (round destination amount down)
-      yield services.assertBalance('http://localhost:3101', 'bob', '104.975')
-      yield services.assertBalance('http://localhost:3101', 'mark2', '995.025')
+      yield services.assertBalance('test2.ledger1.', 'bob', '104.975')
+      yield services.assertBalance('test2.ledger1.', 'mark2', '995.025')
       yield graph.assertZeroHold()
     })
 
@@ -168,8 +171,8 @@ describe('Advanced', function () {
       //  -   5      USD (sent to Bob)
       //  ==============
       //     95      USD
-      yield services.assertBalance('http://localhost:3101', 'alice', '95')
-      yield services.assertBalance('http://localhost:3101', 'mary2', '1005')
+      yield services.assertBalance('test2.ledger1.', 'alice', '95')
+      yield services.assertBalance('test2.ledger1.', 'mary2', '1005')
 
       // Bob should have:
       //    100      USD
@@ -178,8 +181,8 @@ describe('Advanced', function () {
       //  -   0      USD (mary: quoted connector slippage)
       //  ==============
       //    104.9900 USD
-      yield services.assertBalance('http://localhost:3103', 'bob', '104.99')
-      yield services.assertBalance('http://localhost:3103', 'mary2', '995.01')
+      yield services.assertBalance('test2.ledger3.', 'bob', '104.99')
+      yield services.assertBalance('test2.ledger3.', 'mary2', '995.01')
       yield graph.assertZeroHold()
     })
 
@@ -196,11 +199,11 @@ describe('Advanced', function () {
       //  -  10      USD (sent to Bob)
       //  ==============
       //     90      USD
-      yield services.assertBalance('http://localhost:3101', 'alice', '90')
-      yield services.assertBalance('http://localhost:3101', 'michael2', '1010')
+      yield services.assertBalance('test2.ledger1.', 'alice', '90')
+      yield services.assertBalance('test2.ledger1.', 'michael2', '1010')
 
-      yield services.assertBalance('http://localhost:3109', 'michael2', '990')
-      yield services.assertBalance('http://localhost:3109', 'micah2', '1010')
+      yield services.assertBalance('test2.ledger9.', 'michael2', '990')
+      yield services.assertBalance('test2.ledger9.', 'micah2', '1010')
 
       // Bob should have:
       //    100      USD
@@ -209,8 +212,8 @@ describe('Advanced', function () {
       //  -   0      USD (michael: quoted connector slippage)
       //  ==============
       //    110.0000 USD
-      yield services.assertBalance('http://localhost:3110', 'bob', '110')
-      yield services.assertBalance('http://localhost:3110', 'micah2', '990')
+      yield services.assertBalance('test2.ledger10.', 'bob', '110')
+      yield services.assertBalance('test2.ledger10.', 'micah2', '990')
       yield graph.assertZeroHold()
     })
 
@@ -227,8 +230,8 @@ describe('Advanced', function () {
       //  -   5      USD (sent to Bob)
       //  ==============
       //     95      USD
-      yield services.assertBalance('http://localhost:3101', 'alice', '95')
-      yield services.assertBalance('http://localhost:3101', 'martin2', '1005')
+      yield services.assertBalance('test2.ledger1.', 'alice', '95')
+      yield services.assertBalance('test2.ledger1.', 'martin2', '1005')
 
       // Bob should have:
       //    100      USD
@@ -237,8 +240,8 @@ describe('Advanced', function () {
       //  -   0.0025 USD (martin: quoted connector slippage; (5 - 2.5) * 0.001)
       //  ==============
       //    102.4975 USD
-      yield services.assertBalance('http://localhost:3104', 'bob', '102.4975')
-      yield services.assertBalance('http://localhost:3104', 'martin2', '997.5025')
+      yield services.assertBalance('test2.ledger4.', 'bob', '102.4975')
+      yield services.assertBalance('test2.ledger4.', 'martin2', '997.5025')
       yield graph.assertZeroHold()
     })
 
@@ -258,8 +261,8 @@ describe('Advanced', function () {
       //  -   4.9999 USD (sent to Bob)
       //  ==============
       //     95.0001 USD
-      yield services.assertBalance('http://localhost:3101', 'alice', '95.0001')
-      yield services.assertBalance('http://localhost:3101', 'millie2', '1004.9999')
+      yield services.assertBalance('test2.ledger1.', 'alice', '95.0001')
+      yield services.assertBalance('test2.ledger1.', 'millie2', '1004.9999')
 
       // Mia should have:
       //   1000         USD
@@ -268,8 +271,8 @@ describe('Advanced', function () {
       //  =================
       //   1004.9899002 USD
       //   1004.9899    USD (round destination amount down)
-      yield services.assertBalance('http://localhost:3105', 'millie2', '995.0101')
-      yield services.assertBalance('http://localhost:3105', 'mia2', '1004.9899')
+      yield services.assertBalance('test2.ledger5.', 'millie2', '995.0101')
+      yield services.assertBalance('test2.ledger5.', 'mia2', '1004.9899')
 
       // Mark should have:
       //   1000           USD
@@ -278,8 +281,8 @@ describe('Advanced', function () {
       //  ===================
       //   1004.9799202   USD
       //   1004.9799      USD (round destination amount down)
-      yield services.assertBalance('http://localhost:3106', 'mia2', '995.0201')
-      yield services.assertBalance('http://localhost:3106', 'mike2', '1004.9799')
+      yield services.assertBalance('test2.ledger6.', 'mia2', '995.0201')
+      yield services.assertBalance('test2.ledger6.', 'mike2', '1004.9799')
 
       // Bob should have:
       //    100         USD
@@ -293,8 +296,8 @@ describe('Advanced', function () {
       //  =================
       //    104.9647909 USD
       //    104.9647    USD (round destination down)
-      yield services.assertBalance('http://localhost:3107', 'bob', '104.9647')
-      yield services.assertBalance('http://localhost:3107', 'mike2', '995.0353')
+      yield services.assertBalance('test2.ledger7.', 'bob', '104.9647')
+      yield services.assertBalance('test2.ledger7.', 'mike2', '995.0353')
       yield graph.assertZeroHold()
     })
 
@@ -311,8 +314,8 @@ describe('Advanced', function () {
       //  -  10        USD (sent to Bob)
       //  ================
       //     90        USD
-      yield services.assertBalance('http://localhost:3102', 'alice', '90')
-      yield services.assertBalance('http://localhost:3102', 'mesrop2', '1010')
+      yield services.assertBalance('test2.ledger2.', 'alice', '90')
+      yield services.assertBalance('test2.ledger2.', 'mesrop2', '1010')
 
       // Bob should have:
       //    100        USD
@@ -321,8 +324,8 @@ describe('Advanced', function () {
       //  ================
       //    108.7798   USD
       //    108.77     USD (round destination amount down)
-      yield services.assertBalance('http://localhost:3108', 'bob', '108.77')
-      yield services.assertBalance('http://localhost:3108', 'mesrop2', '991.23')
+      yield services.assertBalance('test2.ledger8.', 'bob', '108.77')
+      yield services.assertBalance('test2.ledger8.', 'mesrop2', '991.23')
       yield graph.assertZeroHold()
     })
 
@@ -341,16 +344,16 @@ describe('Advanced', function () {
       //  ================
       //     88.610218 USD
       //     88.61     USD (round source amount up (round source balance down))
-      yield services.assertBalance('http://localhost:3102', 'alice', '88.61')
-      yield services.assertBalance('http://localhost:3102', 'mesrop2', '1011.39')
+      yield services.assertBalance('test2.ledger2.', 'alice', '88.61')
+      yield services.assertBalance('test2.ledger2.', 'mesrop2', '1011.39')
 
       // Bob should have:
       //    100        USD
       //  +  10        USD (money from Alice)
       //  ================
       //    110.00     USD
-      yield services.assertBalance('http://localhost:3108', 'bob', '110')
-      yield services.assertBalance('http://localhost:3108', 'mesrop2', '990')
+      yield services.assertBalance('test2.ledger8.', 'bob', '110')
+      yield services.assertBalance('test2.ledger8.', 'mesrop2', '990')
       yield graph.assertZeroHold()
     })
 
@@ -375,24 +378,24 @@ describe('Advanced', function () {
       yield Promise.delay(2000)
 
       // Amounts/calculations (except for the last one) are identical to the "many hops" test.
-      yield services.assertBalance('http://localhost:3111', 'alice', '95.0001')
-      yield services.assertBalance('http://localhost:3111', 'michelle2', '1004.9999')
+      yield services.assertBalance('test2.group1.ledger1.', 'alice', '95.0001')
+      yield services.assertBalance('test2.group1.ledger1.', 'michelle2', '1004.9999')
 
-      yield services.assertBalance('http://localhost:3112', 'michelle2', '995.0101')
-      yield services.assertBalance('http://localhost:3112', 'milo2', '1004.9899')
+      yield services.assertBalance('test2.group1.ledger2.', 'michelle2', '995.0101')
+      yield services.assertBalance('test2.group1.ledger2.', 'milo2', '1004.9899')
 
-      yield services.assertBalance('http://localhost:3113', 'milo2', '995.0201')
-      yield services.assertBalance('http://localhost:3113', 'miles2', '1004.9799')
+      yield services.assertBalance('test2.group2.ledger1.', 'milo2', '995.0201')
+      yield services.assertBalance('test2.group2.ledger1.', 'miles2', '1004.9799')
 
       // This isn't 104.9647 because by using an intermediate quote that is
       // nearer to the final ledger we can get a slightly better (i.e. less
       // pessimistic) quote (one less rounding shift).
-      yield services.assertBalance('http://localhost:3114', 'bob', '104.9648')
-      yield services.assertBalance('http://localhost:3114', 'miles2', '995.0352')
+      yield services.assertBalance('test2.group2.ledger2.', 'bob', '104.9648')
+      yield services.assertBalance('test2.group2.ledger2.', 'miles2', '995.0352')
     })
 
     it('connector rejects a payment with insufficient liquidity', function * () {
-      yield services.updateAccount('http://localhost:3101', 'alice', {balance: '1950'})
+      yield services.updateAccount('test2.ledger1.', 'alice', {balance: '1950'})
       // Use up mark's liquidity.
       yield services.sendPayment({
         sourceAccount: 'test2.ledger1.alice',
@@ -402,10 +405,10 @@ describe('Advanced', function () {
       })
       yield Promise.delay(2000)
 
-      yield services.assertBalance('http://localhost:3101', 'alice', '1000') // 1950 - 950
-      yield services.assertBalance('http://localhost:3101', 'mark2', '1950') // 1000 + 950
-      yield services.assertBalance('http://localhost:3102', 'bob', '1047.15') // 100 + ~950
-      yield services.assertBalance('http://localhost:3102', 'mark2', '52.85') // 1000 - ~950
+      yield services.assertBalance('test2.ledger1.', 'alice', '1000') // 1950 - 950
+      yield services.assertBalance('test2.ledger1.', 'mark2', '1950') // 1000 + 950
+      yield services.assertBalance('test2.ledger2.', 'bob', '1047.15') // 100 + ~950
+      yield services.assertBalance('test2.ledger2.', 'mark2', '52.85') // 1000 - ~950
 
       let cancelled = false
       // This payment should fail. The quote succeeds without triggering insufficient
@@ -423,10 +426,10 @@ describe('Advanced', function () {
       yield Promise.delay(2000)
       assert(cancelled)
 
-      yield services.assertBalance('http://localhost:3101', 'alice', '1000')
-      yield services.assertBalance('http://localhost:3101', 'mark2', '1950')
-      yield services.assertBalance('http://localhost:3102', 'bob', '1047.15')
-      yield services.assertBalance('http://localhost:3102', 'mark2', '52.85')
+      yield services.assertBalance('test2.ledger1.', 'alice', '1000')
+      yield services.assertBalance('test2.ledger1.', 'mark2', '1950')
+      yield services.assertBalance('test2.ledger2.', 'bob', '1047.15')
+      yield services.assertBalance('test2.ledger2.', 'mark2', '52.85')
       yield graph.assertZeroHold()
     })
   })
