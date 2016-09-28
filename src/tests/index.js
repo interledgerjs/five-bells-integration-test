@@ -46,7 +46,7 @@ describe('Basic', function () {
   beforeEach(function * () { yield graph.setupAccounts() })
 
   describe('account creation', function () {
-    it('won\'t allow in incorrect admin password', function * () {
+    it('won\'t allow an incorrect admin password', function * () {
       try {
         yield services.updateAccount('test1.ledger1.', 'someone', {adminPass: 'wrong'})
       } catch (err) {
