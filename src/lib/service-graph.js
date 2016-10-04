@@ -109,9 +109,13 @@ class ServiceGraph {
   makeCredentials (ledgerPrefix, name) {
     const ledgerHost = this.services.ledgers[ledgerPrefix]
     return {
-      account: ledgerHost + '/accounts/' + encodeURIComponent(name),
-      username: name,
-      password: name
+      currency: 'USD',
+      plugin: 'ilp-plugin-bells',
+      options: {
+        account: ledgerHost + '/accounts/' + encodeURIComponent(name),
+        username: name,
+        password: name
+      }
     }
   }
 }
