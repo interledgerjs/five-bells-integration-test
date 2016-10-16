@@ -8,10 +8,10 @@ const spawn = require('../util').spawn
 const gitBranch = require('git-branch')
 
 const DEFAULT_DEPENDENCIES = {
-  'five-bells-ledger': 'interledger/five-bells-ledger',
+  'five-bells-ledger': 'interledgerjs/five-bells-ledger',
   'ilp-connector': 'interledgerjs/ilp-connector',
-  'five-bells-notary': 'interledger/five-bells-notary',
-  'five-bells-receiver': 'interledger/five-bells-receiver',
+  'five-bells-notary': 'interledgerjs/five-bells-notary',
+  'five-bells-receiver': 'interledgerjs/five-bells-receiver',
   'ilp': 'interledgerjs/ilp',
   'ilp-core': 'interledgerjs/ilp-core',
   'ilp-plugin-bells': 'interledgerjs/ilp-plugin-bells'

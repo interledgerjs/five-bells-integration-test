@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/interledger/five-bells-integration-test.git"
+    "url": "git+https://github.com/interledgerjs/five-bells-integration-test.git"
   },
   "keywords": [
     "ilp",
@@ -24,9 +24,9 @@
   "author": "Stefan Thomas <justmoon@members.fsf.org>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/interledger/five-bells-integration-test/issues"
+    "url": "https://github.com/interledgerjs/five-bells-integration-test/issues"
   },
-  "homepage": "https://github.com/interledger/five-bells-integration-test#readme",
+  "homepage": "https://github.com/interledgerjs/five-bells-integration-test#readme",
   "devDependencies": {
     "cz-conventional-changelog": "^1.1.5",
     "eslint": "^2.0.0-rc.1",
