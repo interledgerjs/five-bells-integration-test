@@ -9,12 +9,12 @@ const gitBranch = require('git-branch')
 
 const DEFAULT_DEPENDENCIES = {
   'five-bells-ledger': 'interledger/five-bells-ledger',
-  'ilp-connector': 'interledger/js-ilp-connector',
+  'ilp-connector': 'interledgerjs/ilp-connector',
   'five-bells-notary': 'interledger/five-bells-notary',
   'five-bells-receiver': 'interledger/five-bells-receiver',
-  'ilp': 'interledger/js-ilp',
-  'ilp-core': 'interledger/js-ilp-core',
-  'ilp-plugin-bells': 'interledger/js-ilp-plugin-bells'
+  'ilp': 'interledgerjs/ilp',
+  'ilp-core': 'interledgerjs/ilp-core',
+  'ilp-plugin-bells': 'interledgerjs/ilp-plugin-bells'
 }
 
 class DependencyManager {
