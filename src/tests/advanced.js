@@ -358,10 +358,9 @@ describe('Advanced', function () {
     })
 
     it('routes payments to unknown ledgers to nearby connectors', function * () {
-      yield services.sendRoutes('http://localhost:4108', [{
+      yield services.sendRoutes('test2.group1.ledger2.', 'michelle2', [{
         source_ledger: 'test2.group1.ledger2.',
         destination_ledger: 'test2.group2.',
-        connector: 'http://localhost:4109',
         min_message_window: 5,
         source_account: 'test2.group1.ledger2.milo2',
         // This curve is only used for route selection, not for quoting amounts.
