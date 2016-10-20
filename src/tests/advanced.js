@@ -1,4 +1,4 @@
-/*global describe, it, beforeEach, before*/
+/*global describe, it, beforeEach, before, after*/
 'use strict'
 const path = require('path')
 const assert = require('assert')
@@ -98,6 +98,8 @@ describe('Advanced', function () {
   })
 
   beforeEach(function * () { yield graph.setupAccounts() })
+
+  after(function () { services.killAll() })
 
   describe('send universal payment', function () {
     it('scale: high → low; by source amount', function * () {
