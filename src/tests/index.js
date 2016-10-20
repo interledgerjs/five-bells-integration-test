@@ -1,4 +1,4 @@
-/*global describe, it, beforeEach, before*/
+/*global describe, it, beforeEach, before, after*/
 'use strict'
 const path = require('path')
 const assert = require('assert')
@@ -44,6 +44,8 @@ describe('Basic', function () {
   })
 
   beforeEach(function * () { yield graph.setupAccounts() })
+
+  after(function () { services.killAll() })
 
   describe('account creation', function () {
     it('won\'t allow an incorrect admin password', function * () {

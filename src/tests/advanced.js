@@ -1,4 +1,4 @@
-/*global describe, it, beforeEach, before*/
+/*global describe, it, beforeEach, before, after*/
 'use strict'
 const path = require('path')
 const assert = require('assert')
@@ -98,6 +98,8 @@ describe('Advanced', function () {
   })
 
   beforeEach(function * () { yield graph.setupAccounts() })
+
+  after(function () { services.killAll() })
 
   describe('send universal payment', function () {
     it('scale: high → low; by source amount', function * () {
@@ -358,15 +360,19 @@ describe('Advanced', function () {
     })
 
     it('routes payments to unknown ledgers to nearby connectors', function * () {
-      yield services.sendRoutes('http://localhost:4108', [{
+      yield services.sendRoutes([{
         source_ledger: 'test2.group1.ledger2.',
         destination_ledger: 'test2.group2.',
-        connector: 'http://localhost:4109',
         min_message_window: 5,
         source_account: 'test2.group1.ledger2.milo2',
         // This curve is only used for route selection, not for quoting amounts.
         points: [ [0, 0], [1000, 2000] ]
-      }])
+      }], {
+        ledger: 'test2.group1.ledger2.',
+        connectorName: 'michelle2',
+        username: 'milo2',
+        password: 'milo2'
+      })
       yield services.sendPayment({
         sourceAccount: 'test2.group1.ledger1.alice',
         sourcePassword: 'alice',
