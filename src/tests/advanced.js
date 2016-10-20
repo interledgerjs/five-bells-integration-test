@@ -367,7 +367,7 @@ describe('Advanced', function () {
         points: [ [0, 0], [1000, 2000] ]
       }], {
         ledger: 'test2.group1.ledger2.',
-        connectorName:  'michelle2',
+        connectorName: 'michelle2',
         username: 'milo2',
         password: 'milo2'
       })
