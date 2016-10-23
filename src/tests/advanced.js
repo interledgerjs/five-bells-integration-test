@@ -2,7 +2,6 @@
 'use strict'
 const path = require('path')
 const assert = require('assert')
-const Promise = require('bluebird')
 const ServiceManager = require('five-bells-service-manager')
 const ServiceGraph = require('../lib/service-graph')
 
@@ -109,7 +108,7 @@ describe('Advanced', function () {
         destinationAccount: 'test2.ledger2.bob',
         sourceAmount: '4.9999'
       })
-      yield Promise.delay(2000)
+
       // Alice should have:
       //    100      USD
       //  -   4.9999 USD (sent to Bob)
@@ -138,7 +137,7 @@ describe('Advanced', function () {
         destinationAccount: 'test2.ledger1.bob',
         sourceAmount: '4.99'
       })
-      yield Promise.delay(2000)
+
       // Alice should have:
       //    100      USD
       //  -   4.99   USD (sent to Bob)
@@ -167,7 +166,7 @@ describe('Advanced', function () {
         destinationAccount: 'test2.ledger3.bob',
         sourceAmount: '5'
       })
-      yield Promise.delay(2000)
+
       // Alice should have:
       //    100      USD
       //  -   5      USD (sent to Bob)
@@ -195,7 +194,7 @@ describe('Advanced', function () {
         destinationAccount: 'test2.ledger10.bob',
         destinationAmount: '10'
       })
-      yield Promise.delay(2000)
+
       // Alice should have:
       //    100      USD
       //  -  10      USD (sent to Bob)
@@ -226,7 +225,7 @@ describe('Advanced', function () {
         destinationAccount: 'test2.ledger4.bob',
         sourceAmount: '5'
       })
-      yield Promise.delay(2000)
+
       // Alice should have:
       //    100      USD
       //  -   5      USD (sent to Bob)
@@ -257,7 +256,7 @@ describe('Advanced', function () {
         destinationPrecision: '10',
         destinationScale: '4'
       })
-      yield Promise.delay(2000)
+
       // Alice should have:
       //    100      USD
       //  -   4.9999 USD (sent to Bob)
@@ -310,7 +309,7 @@ describe('Advanced', function () {
         destinationAccount: 'test2.ledger8.bob',
         sourceAmount: '10'
       })
-      yield Promise.delay(2000)
+
       // Alice should have:
       //    100        USD
       //  -  10        USD (sent to Bob)
@@ -338,7 +337,7 @@ describe('Advanced', function () {
         destinationAccount: 'test2.ledger8.bob',
         destinationAmount: '10'
       })
-      yield Promise.delay(2000)
+
       // Alice should have:
       //    100        USD
       //  -  10        USD (sent to Bob)
@@ -381,7 +380,6 @@ describe('Advanced', function () {
         destinationPrecision: '10',
         destinationScale: '4'
       })
-      yield Promise.delay(2000)
 
       // Amounts/calculations (except for the last one) are identical to the "many hops" test.
       yield services.assertBalance('test2.group1.ledger1.', 'alice', '95.0001')
@@ -409,7 +407,6 @@ describe('Advanced', function () {
         destinationAccount: 'test2.ledger2.bob',
         sourceAmount: '950'
       })
-      yield Promise.delay(2000)
 
       yield services.assertBalance('test2.ledger1.', 'alice', '1000') // 1950 - 950
       yield services.assertBalance('test2.ledger1.', 'mark2', '1950') // 1000 + 950
@@ -429,7 +426,7 @@ describe('Advanced', function () {
           cancelled = true
         }
       })
-      yield Promise.delay(2000)
+
       assert(cancelled)
 
       yield services.assertBalance('test2.ledger1.', 'alice', '1000')
