@@ -47,18 +47,6 @@ describe('Basic', function () {
 
   after(function () { services.killAll() })
 
-  describe('account creation', function () {
-    it('won\'t allow an incorrect admin password', function * () {
-      try {
-        yield services.updateAccount('test1.ledger1.', 'someone', {adminPass: 'wrong'})
-      } catch (err) {
-        assert.equal(err.status, 403)
-        return
-      }
-      assert(false)
-    })
-  })
-
   describe('checking balances', function () {
     it('initializes with the correct amounts', function * () {
       yield services.assertBalance('test1.ledger1.', 'alice', '100')
@@ -72,16 +60,6 @@ describe('Basic', function () {
       yield services.assertBalance('test1.ledger2.', 'mary', '1000')
       yield services.assertBalance('test1.ledger3.', 'mary', '1000')
     })
-
-    it('won\'t allow an incorrect admin password', function * () {
-      try {
-        yield services.getBalance('test1.ledger1.', 'alice', {adminPass: 'wrong'})
-      } catch (err) {
-        assert.equal(err.status, 403)
-        return
-      }
-      assert(false)
-    })
   })
 
   describe('send universal payment', function () {
@@ -92,7 +70,7 @@ describe('Basic', function () {
         destinationAccount: 'test1.ledger2.bob',
         destinationAmount: '5'
       })
-      yield Promise.delay(2000)
+
       // Alice should have:
       //    100      USD
       //  -   5      USD (sent to Bob)
@@ -121,7 +99,7 @@ describe('Basic', function () {
         destinationAccount: 'test1.ledger2.bob',
         sourceAmount: '5'
       })
-      yield Promise.delay(2000)
+
       // Alice should have:
       //    100      USD
       //  -   5      USD (sent to Bob)
@@ -173,7 +151,6 @@ describe('Basic', function () {
         destinationAccount: 'test1.ledger3.bob',
         destinationAmount: '5'
       })
-      yield Promise.delay(2000)
 
       // Alice should have:
       //    100      USD
@@ -208,7 +185,7 @@ describe('Basic', function () {
         destinationAccount: 'test1.ledger3.bob',
         destinationAmount: '0.01'
       })
-      yield Promise.delay(2000)
+
       // Alice should have:
       //    100       USD
       //  -   0.01    USD (sent to Bob)
@@ -244,7 +221,7 @@ describe('Basic', function () {
         destinationPrecision: '10',
         destinationScale: '4'
       })
-      yield Promise.delay(2000)
+
       // Alice should have:
       //    100      USD
       //  -   0.01   USD (sent to Bob)
@@ -282,7 +259,7 @@ describe('Basic', function () {
         notary: 'http://localhost:6001',
         notaryPublicKey
       })
-      yield Promise.delay(2000)
+
       // Alice should have:
       //    100      USD
       //  -   5      USD (sent to Bob)
@@ -373,7 +350,7 @@ describe('Basic', function () {
         destinationAccount: 'test1.ledger1.bob',
         destinationAmount: '5'
       })
-      yield Promise.delay(2000)
+
       // Alice should have:
       //    100      USD
       //  -   5      USD (sent to Bob)
@@ -392,7 +369,7 @@ describe('Basic', function () {
         destinationAccount: 'test1.ledger1.bob',
         sourceAmount: '5'
       })
-      yield Promise.delay(2000)
+
       // Alice should have:
       //    100      USD
       //  -   5      USD (sent to Bob)
