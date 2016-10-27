@@ -36,13 +36,13 @@ class ServiceGraph {
     return this.services.startLedger(name, port, options)
   }
 
-  * startConnector (name, port, options) {
-    this.connectors[name] = Object.assign(options, {port})
+  * startConnector (name, options) {
+    this.connectors[name] = options
     options.pairs = this.edgesToPairs(options.edges)
     options.credentials = this.edgesToCredentials(options.edges, name)
     options.notificationKeys = this.notificationConditions
     yield this.setupConnectorAccounts(name)
-    yield this.services.startConnector(port, options)
+    yield this.services.startConnector(name, options)
   }
 
   /**
@@ -93,10 +93,9 @@ class ServiceGraph {
 
   * setupConnectorAccounts (connectorName) {
     const connector = this.connectors[connectorName]
-    const host = 'http://localhost:' + connector.port
     for (const edge of connector.edges) {
-      yield this.services.updateAccount(edge.source, connectorName, {balance: '1000', connector: host})
-      yield this.services.updateAccount(edge.target, connectorName, {balance: '1000', connector: host})
+      yield this.services.updateAccount(edge.source, connectorName, {balance: '1000', connector: edge.source + connectorName})
+      yield this.services.updateAccount(edge.target, connectorName, {balance: '1000', connector: edge.target + connectorName})
     }
   }
 

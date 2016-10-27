@@ -36,53 +36,53 @@ describe('Advanced', function () {
 
     yield graph.setupAccounts()
 
-    yield graph.startConnector('mark2', 4101, {
+    yield graph.startConnector('mark2', {
       edges: [{source: 'test2.ledger1.', target: 'test2.ledger2.'}]
     })
 
-    yield graph.startConnector('mary2', 4102, {
+    yield graph.startConnector('mary2', {
       edges: [{source: 'test2.ledger1.', target: 'test2.ledger3.'}],
       slippage: '0'
     })
 
-    yield graph.startConnector('martin2', 4103, {
+    yield graph.startConnector('martin2', {
       edges: [{source: 'test2.ledger1.', target: 'test2.ledger4.'}],
       fxSpread: '0.5'
     })
 
-    yield graph.startConnector('millie2', 4104, {
+    yield graph.startConnector('millie2', {
       edges: [{source: 'test2.ledger1.', target: 'test2.ledger5.'}]
     })
-    yield graph.startConnector('mia2', 4105, {
+    yield graph.startConnector('mia2', {
       edges: [{source: 'test2.ledger5.', target: 'test2.ledger6.'}]
     })
-    yield graph.startConnector('mike2', 4106, {
+    yield graph.startConnector('mike2', {
       edges: [{source: 'test2.ledger6.', target: 'test2.ledger7.'}]
     })
 
-    yield graph.startConnector('mesrop2', 4107, {
+    yield graph.startConnector('mesrop2', {
       edges: [{source: 'test2.ledger2.', target: 'test2.ledger8.'}],
       fxSpread: (1 - 0.877980).toFixed(8),
       slippage: '0'
     })
 
-    yield graph.startConnector('michelle2', 4108, {
+    yield graph.startConnector('michelle2', {
       edges: [{source: 'test2.group1.ledger1.', target: 'test2.group1.ledger2.'}]
     })
-    yield graph.startConnector('milo2', 4109, {
+    yield graph.startConnector('milo2', {
       edges: [{source: 'test2.group1.ledger2.', target: 'test2.group2.ledger1.'}],
       routeBroadcastEnabled: false
     })
-    yield graph.startConnector('miles2', 4110, {
+    yield graph.startConnector('miles2', {
       edges: [{source: 'test2.group2.ledger1.', target: 'test2.group2.ledger2.'}]
     })
 
-    yield graph.startConnector('michael2', 4111, {
+    yield graph.startConnector('michael2', {
       edges: [{source: 'test2.ledger1.', target: 'test2.ledger9.'}],
       slippage: '0',
       fxSpread: '0'
     })
-    yield graph.startConnector('micah2', 4112, {
+    yield graph.startConnector('micah2', {
       edges: [{source: 'test2.ledger9.', target: 'test2.ledger10.'}],
       slippage: '0',
       fxSpread: '0'
