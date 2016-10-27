@@ -23,13 +23,13 @@ describe('Basic', function () {
 
     yield graph.setupAccounts()
 
-    yield graph.startConnector('mark', 4001, {
+    yield graph.startConnector('mark', {
       edges: [
         {source: 'test1.ledger1.', target: 'test1.ledger2.'}
       ]
     })
 
-    yield graph.startConnector('mary', 4002, {
+    yield graph.startConnector('mary', {
       edges: [
         {source: 'test1.ledger2.', target: 'test1.ledger3.'}
       ]
