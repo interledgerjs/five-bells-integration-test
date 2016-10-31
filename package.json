@@ -22,7 +22,7 @@
     "qa"
   ],
   "author": "Stefan Thomas <justmoon@members.fsf.org>",
-  "license": "ISC",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/interledgerjs/five-bells-integration-test/issues"
   },
