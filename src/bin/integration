@@ -3,14 +3,22 @@
 
 const path = require('path')
 const Promise = require('bluebird-co')
-const DependencyManager = require('../lib/dependency-manager')
+const DependencyManager = require('five-bells-integration-test-loader').DependencyManager
 const spawn = require('../util').spawn
 const command = process.argv[2]
-const dependencies = new DependencyManager()
+const dependencies = new DependencyManager({ defaultDependencies: {
+  'five-bells-ledger': 'interledgerjs/five-bells-ledger',
+  'ilp-connector': 'interledgerjs/ilp-connector',
+  'five-bells-notary': 'interledgerjs/five-bells-notary',
+  'five-bells-receiver': 'interledgerjs/five-bells-receiver',
+  'ilp': 'interledgerjs/ilp',
+  'ilp-core': 'interledgerjs/ilp-core',
+  'ilp-plugin-bells': 'interledgerjs/ilp-plugin-bells'
+} })
 const commands = ['all', 'setup', 'test']
 const mocha = path.resolve(require.resolve('mocha'), '../bin/mocha')
 
-function usage() {
+function usage () {
   console.error('usage: ' + process.argv[1] + ' <command>')
   console.error('commands:')
   console.error('  all    # setup then test')
@@ -27,8 +35,8 @@ Promise.coroutine(function * () {
   }
   if (command === 'all' || command === 'test') {
     code = code || (yield spawn(mocha, [
-      __dirname + '/../tests/index.js',
-      __dirname + '/../tests/advanced.js',
+      path.resolve(__dirname, '../tests/index.js'),
+      path.resolve(__dirname, '../tests/advanced.js'),
       '--no-timeouts',
       '-r', 'co-mocha'
     ], {
