@@ -94,8 +94,8 @@ class ServiceGraph {
   * setupConnectorAccounts (connectorName) {
     const connector = this.connectors[connectorName]
     for (const edge of connector.edges) {
-      yield this.services.updateAccount(edge.source, connectorName, {balance: '1000', connector: edge.source + connectorName})
-      yield this.services.updateAccount(edge.target, connectorName, {balance: '1000', connector: edge.target + connectorName})
+      yield this.services.updateAccount(edge.source, connectorName, {balance: '1000'})
+      yield this.services.updateAccount(edge.target, connectorName, {balance: '1000'})
     }
   }
 

@@ -17,9 +17,15 @@ const graph = new ServiceGraph(services)
 
 describe('Basic', function () {
   before(function * () {
-    yield graph.startLedger('test1.ledger1.', 3001, {})
-    yield graph.startLedger('test1.ledger2.', 3002, {})
-    yield graph.startLedger('test1.ledger3.', 3003, {})
+    yield graph.startLedger('test1.ledger1.', 3001, {
+      recommendedConnectors: 'mark'
+    })
+    yield graph.startLedger('test1.ledger2.', 3002, {
+      recommendedConnectors: 'mark,mary'
+    })
+    yield graph.startLedger('test1.ledger3.', 3003, {
+      recommendedConnectors: 'mary'
+    })
 
     yield graph.setupAccounts()
 

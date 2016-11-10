@@ -16,23 +16,65 @@ const receiverSecret = 'O8Y6+6bJgl2i285yCeC/Wigi6P6TJ4C78tdASqDOR9g='
 
 describe('Advanced', function () {
   before(function * () {
-    yield graph.startLedger('test2.ledger1.', 3101, {scale: 4})
-    yield graph.startLedger('test2.ledger2.', 3102, {scale: 2})
-    yield graph.startLedger('test2.ledger3.', 3103, {scale: 4})
-    yield graph.startLedger('test2.ledger4.', 3104, {scale: 4})
+    yield graph.startLedger('test2.ledger1.', 3101, {
+      scale: 4,
+      recommendedConnectors: 'mark2,mary2,martin2,millie2,michael2'
+    })
+    yield graph.startLedger('test2.ledger2.', 3102, {
+      scale: 2,
+      recommendedConnectors: 'mark2,mesrop2'
+    })
+    yield graph.startLedger('test2.ledger3.', 3103, {
+      scale: 4,
+      recommendedConnectors: 'mary2'
+    })
+    yield graph.startLedger('test2.ledger4.', 3104, {
+      scale: 4,
+      recommendedConnectors: 'martin2'
+    })
 
-    yield graph.startLedger('test2.ledger5.', 3105, {scale: 4})
-    yield graph.startLedger('test2.ledger6.', 3106, {scale: 4})
-    yield graph.startLedger('test2.ledger7.', 3107, {scale: 4})
+    yield graph.startLedger('test2.ledger5.', 3105, {
+      scale: 4,
+      recommendedConnectors: 'millie2,mia2'
+    })
+    yield graph.startLedger('test2.ledger6.', 3106, {
+      scale: 4,
+      recommendedConnectors: 'mia2,mike2'
+    })
+    yield graph.startLedger('test2.ledger7.', 3107, {
+      scale: 4,
+      recommendedConnectors: 'mike2'
+    })
 
-    yield graph.startLedger('test2.ledger8.', 3108, {scale: 2})
-    yield graph.startLedger('test2.ledger9.', 3109, {scale: 4})
-    yield graph.startLedger('test2.ledger10.', 3110, {scale: 4})
+    yield graph.startLedger('test2.ledger8.', 3108, {
+      scale: 2,
+      recommendedConnectors: 'mesrop2'
+    })
+    yield graph.startLedger('test2.ledger9.', 3109, {
+      scale: 4,
+      recommendedConnectors: 'michael2,micah2'
+    })
+    yield graph.startLedger('test2.ledger10.', 3110, {
+      scale: 4,
+      recommendedConnectors: 'micah2'
+    })
 
-    yield graph.startLedger('test2.group1.ledger1.', 3111, {scale: 4})
-    yield graph.startLedger('test2.group1.ledger2.', 3112, {scale: 4})
-    yield graph.startLedger('test2.group2.ledger1.', 3113, {scale: 4})
-    yield graph.startLedger('test2.group2.ledger2.', 3114, {scale: 4})
+    yield graph.startLedger('test2.group1.ledger1.', 3111, {
+      scale: 4,
+      recommendedConnectors: 'michelle2'
+    })
+    yield graph.startLedger('test2.group1.ledger2.', 3112, {
+      scale: 4,
+      recommendedConnectors: 'michelle2,milo2'
+    })
+    yield graph.startLedger('test2.group2.ledger1.', 3113, {
+      scale: 4,
+      recommendedConnectors: 'milo2,miles2'
+    })
+    yield graph.startLedger('test2.group2.ledger2.', 3114, {
+      scale: 4,
+      recommendedConnectors: 'miles2'
+    })
 
     yield graph.setupAccounts()
 
