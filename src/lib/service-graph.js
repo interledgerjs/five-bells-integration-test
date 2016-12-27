@@ -27,6 +27,10 @@ class ServiceGraph {
     this.notificationConditions = {}
   }
 
+  // startKit (ledger, connector, options) {
+
+  // }
+
   startLedger (name, port, options) {
     const host = 'http://localhost:' + port
     this.notificationConditions[host] = notificationConditions[this.numLedgers % 3]

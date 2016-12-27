@@ -13,8 +13,9 @@ const dependencies = new DependencyManager({ defaultDependencies: {
   'five-bells-receiver': 'interledgerjs/five-bells-receiver',
   'ilp': 'interledgerjs/ilp',
   'ilp-core': 'interledgerjs/ilp-core',
-  'ilp-plugin-bells': 'interledgerjs/ilp-plugin-bells'
-} })
+  'ilp-plugin-bells': 'interledgerjs/ilp-plugin-bells',
+  'ilp-kit': 'interledgerjs/ilp-kit'
+}})
 const commands = ['all', 'setup', 'test']
 const mocha = path.resolve(require.resolve('mocha'), '../bin/mocha')
 
@@ -35,9 +36,10 @@ Promise.coroutine(function * () {
   }
   if (command === 'all' || command === 'test') {
     code = code || (yield spawn(mocha, [
-      path.resolve(__dirname, '../tests/index.js'),
-      path.resolve(__dirname, '../tests/advanced.js'),
-      path.resolve(__dirname, '../tests/connector_first.js'),
+      // path.resolve(__dirname, '../tests/index.js'),
+      // path.resolve(__dirname, '../tests/advanced.js'),
+      // path.resolve(__dirname, '../tests/connector_first.js'),
+      path.resolve(__dirname, '../tests/ilp-kit.js'),
       '--no-timeouts',
       '-r', 'co-mocha'
     ], {
