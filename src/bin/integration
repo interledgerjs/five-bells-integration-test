@@ -36,9 +36,9 @@ Promise.coroutine(function * () {
   }
   if (command === 'all' || command === 'test') {
     code = code || (yield spawn(mocha, [
-      // path.resolve(__dirname, '../tests/index.js'),
-      // path.resolve(__dirname, '../tests/advanced.js'),
-      // path.resolve(__dirname, '../tests/connector_first.js'),
+      path.resolve(__dirname, '../tests/index.js'),
+      path.resolve(__dirname, '../tests/advanced.js'),
+      path.resolve(__dirname, '../tests/connector_first.js'),
       path.resolve(__dirname, '../tests/ilp-kit.js'),
       '--no-timeouts',
       '-r', 'co-mocha'
