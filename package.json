@@ -21,16 +21,7 @@
     "integration",
     "qa"
   ],
-  "contributors": [
-    {
-      "name": "Stefan Thomas",
-      "email": "justmoon@members.fsf.org"
-    },
-    {
-      "name": "Dennis Appelt",
-      "email": "dappelt@ripple.com"
-    }
-  ],
+  "author": "Interledger Team <info@interledger.org>",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/interledgerjs/five-bells-integration-test/issues"

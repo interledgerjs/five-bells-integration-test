@@ -18,8 +18,6 @@ const configFiles = [ require.resolve('../tests/data/kit1-env.list'),
                       require.resolve('../tests/data/kit2-env.list'),
                       require.resolve('../tests/data/kit3-env.list')]
 
-// const configFiles = [ require.resolve('../tests/data/kit1-env.list') ]
-
 // sleep time expects milliseconds
 function sleep (time) {
   return new Promise((resolve) => setTimeout(resolve, time))
@@ -47,7 +45,7 @@ describe('ILP Kit Test Suite -', function () {
     yield sleep(1000)
   })
 
-  after(function * () { })
+  after(function * () { services.killAll() })
 
   describe('User API -', function () {
     it('Gets a user', function * () {
@@ -105,67 +103,5 @@ describe('ILP Kit Test Suite -', function () {
       assert.equal(resp.body.email, expectedMail, `Mail is ${resp.body.username}, 
         but expected is ${expectedMail}`)
     })
-
-    // it('sends verification email', function () {
-
-    // })
-
-    // it('verifies user email', function () {
-
-    // })
   })
-
-  describe('Payment API -', function () {
-    // it('request a quote', function () {
-    //   assert.fail('Not implemented')
-    // })
-
-    // it('make a localledger payment', function * () {
-    //   const resp = yield request
-    //     .put('http://localhost:3010/api/payments/9efa70ec-08b9-11e6-b512-3e1d05defe78')
-    //     .auth('alice', 'alice')
-    //     .set('Content-Type', 'application/json')
-    //     .send({
-    //       destination: 'bob@localhost:3010',
-    //       destinationAmount: 1,
-    //       sourceAmount: 1,
-    //       message: 'test'
-    //     })
-    //   // console.log(resp)
-    // })
-
-    // it('make an interledger payment', function * () {
-    //   const resp = yield request
-    //     .put('http://localhost:3010/api/payments/d795331b-3010-49aa-8cdb-5122ba045611')
-    //     .auth('connie', 'connie')
-    //     .set('Content-Type', 'application/json')
-    //     .send({
-    //       destination: 'admin@localhost:3110',
-    //       destinationAmount: 1,
-    //       sourceAmount: 1,
-    //       message: 'test'
-    //     })
-    //   // console.log(resp)
-    // })
-
-    // it('makes a interledger payment', function () {
-
-    // })
-
-    // it('gets a user\'s payment history', function () {
-
-    // })
-  })
-
-  // describe('Misc tests', function () {
-
-  // })
-
-  // describe('Auth tests', function () {
-
-  // })
-
-  // describe('Receiver tests', function () {
-
-  // })
 })
