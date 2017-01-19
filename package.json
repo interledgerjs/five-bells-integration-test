@@ -1,6 +1,6 @@
 {
   "name": "five-bells-integration-test",
-  "version": "5.0.1",
+  "version": "5.0.2",
   "description": "A module to help with testing Five Bells components against each other",
   "main": "src/index.js",
   "bin": {
