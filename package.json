@@ -48,6 +48,7 @@
   "dependencies": {
     "bluebird": "^3.3.0",
     "bluebird-co": "^2.1.2",
+    "co-child-process": "^1.1.0",
     "co-mocha": "^1.1.2",
     "five-bells-integration-test-loader": "^1.0.0",
     "five-bells-service-manager": "^5.4.0",
