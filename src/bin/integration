@@ -7,6 +7,8 @@ const DependencyManager = require('five-bells-integration-test-loader').Dependen
 const spawn = require('../util').spawn
 const command = process.argv[2]
 const dependencies = new DependencyManager({ defaultDependencies: {
+  'five-bells-shared': 'interledgerjs/five-bells-shared',
+  'ilp-routing': 'interledgerjs/ilp-routing',
   'five-bells-ledger': 'interledgerjs/five-bells-ledger',
   'ilp-connector': 'interledgerjs/ilp-connector',
   'five-bells-notary': 'interledgerjs/five-bells-notary',
