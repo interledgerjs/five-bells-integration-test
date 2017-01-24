@@ -249,8 +249,8 @@ describe('Basic', function () {
       //  -   0.00005 USD (mark: round destination amount down)
       //  ===============
       //    100.0098  USD
-      yield services.assertBalance('test1.ledger3.', 'bob', '100.0098')
-      yield services.assertBalance('test1.ledger3.', 'mary', '999.9902')
+      yield services.assertBalance('test1.ledger3.', 'bob', '100.0097')
+      yield services.assertBalance('test1.ledger3.', 'mary', '999.9903')
       yield graph.assertZeroHold()
     })
   })
