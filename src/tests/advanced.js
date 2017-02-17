@@ -465,8 +465,15 @@ describe('Advanced', function () {
         sourcePassword: 'alice',
         destinationAccount: 'test2.ledger2.bob',
         sourceAmount: '90',
-        onOutgoingReject: (transfer, reason) => {
-          assert.equal(reason, 'destination transfer failed: Sender has insufficient funds.')
+        onOutgoingReject: (transfer, rejectionMessage) => {
+          assert.deepEqual(rejectionMessage, {
+            code: 'T01',
+            name: 'Ledger Unreachable',
+            message: 'destination transfer failed: Sender has insufficient funds.',
+            triggered_by: 'test2.ledger2.mark2',
+            triggered_at: rejectionMessage.triggered_at,
+            additional_info: {}
+          })
           cancelled = true
         }
       })
