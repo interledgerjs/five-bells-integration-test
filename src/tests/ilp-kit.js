@@ -181,28 +181,21 @@ describe('ILP Kit Test Suite -', function () {
   })
 
   describe('Payment API -', function () {
-    // TODO: Check why the expected quote deviates so much from the expected.
-    it.skip('request a quote', function * () {
+    it('request a quote', function * () {
       const config = kitManager.kits[0]
-      const destAmount = 100
+      const sourceAmount = 5.1016
+      const destinationAmount = 5
       const resp = yield request
-        .post(`https://${config.API_HOSTNAME}:${config.API_PUBLIC_PORT}/api/payment/quote`)
+        .post(`https://${config.API_HOSTNAME}:${config.API_PUBLIC_PORT}/api/payments/quote`)
         .auth('alice', 'alice')
         .set('Content-Type', 'application/json')
-        .send({
-          destination: 'bob@wallet2.example',
-          sourceAmount: 99,
-          destinationAmount: destAmount
-        })
+        .send({ destination: 'bob@wallet2.example', destinationAmount })
       assertStatusCode(resp, 200)
 
-      const expectedSourceAmount = 102.01
-      const epsilon = expectedSourceAmount * 0.03
-
-      assert(Math.abs(resp.body.sourceAmount - expectedSourceAmount) < epsilon,
-        `sourceAmount is ${resp.body.sourceAmount}, but expected is ${expectedSourceAmount}`)
-      assert.equal(resp.body.destinationAmount, destAmount,
-        `destinationAmount is ${resp.body.destinationAmount}, but expected is ${destAmount}`)
+      assert(resp.body.sourceAmount, sourceAmount,
+        `sourceAmount is ${resp.body.sourceAmount}, but expected is ${sourceAmount}`)
+      assert.equal(resp.body.destinationAmount, destinationAmount,
+        `destinationAmount is ${resp.body.destinationAmount}, but expected is ${destinationAmount}`)
     })
 
     it('Make an intraledger payment', function * () {
@@ -222,7 +215,7 @@ describe('ILP Kit Test Suite -', function () {
       yield kitManager.assertBalance(kitManager.kits[0], 'bob', '1001')
     })
 
-    it.skip('Make an interledger payment (same currency)', function * () {
+    it('Make an interledger payment (same currency)', function * () {
       const config = kitManager.kits[0]
       const resp = yield request
         .put(`https://${config.API_HOSTNAME}:${config.API_PUBLIC_PORT}/api/payments/aaaa70ec-08b9-11e6-b512-3e1d05defe78`)
@@ -230,33 +223,23 @@ describe('ILP Kit Test Suite -', function () {
         .set('Content-Type', 'application/json')
         .send({
           destination: 'bob@wallet2.example:443',
-          destinationAmount: 100,
+          destinationAmount: 5,
           message: 'interledger payment test'
         })
       assertStatusCode(resp, 200)
 
       // Alice should have:
       //    1000      USD
-      //  -  100      USD (destinationAmount for Bob)
-      //  -    1      USD (fee connie@wallet2: 1% of destinationAmount)
-      //  -    1.01   USD (fee connie@wallet1: 1% of (destinationAmount + fee connie@wallet2)
-      //  ===============
-      //     897,99   USD
+      //  -    5      USD (sent to Bob)
+      //  /   (1 - 0.01)  (connie@wallet2 spread/fee: 1%)
+      //  /   (1 - 0.01)  (connie@wallet1 spread/fee: 1%)
+      //  ==============
+      //     994.8984 USD
 
-      // The sourceAmount returned by a quote amount is deviating more than
-      // 2 cents for a payment of 100. It is unclear whether this
-      // is due to the imprecision inherent to floating-point operations or
-      // an error in the calculation of the quote.
-      //
-      // TODO: Investigate if the deviation from the expected sourceAmount is ok.
-      // Assume for now the deviation is ok.
-      const expectedSourceAmount = 102.01
-      const epsilon = expectedSourceAmount * 0.0003
-
-      yield kitManager.assertBalance(kitManager.kits[0], 'alice', 897.99, epsilon)
-      yield kitManager.assertBalance(kitManager.kits[1], 'bob', 1100)
-      yield kitManager.assertBalance(kitManager.kits[0], 'connie', 1102.01, epsilon)
-      yield kitManager.assertBalance(kitManager.kits[1], 'connie', 900)
+      yield kitManager.assertBalance(kitManager.kits[0], 'alice', 994.8984)
+      yield kitManager.assertBalance(kitManager.kits[1], 'bob', 1005)
+      yield kitManager.assertBalance(kitManager.kits[0], 'connie', 1005.1016)
+      yield kitManager.assertBalance(kitManager.kits[1], 'connie', 995)
     })
 
     it.skip('Make an interledger payment (cross-currency)', function * () {
