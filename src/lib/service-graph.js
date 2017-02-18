@@ -1,21 +1,5 @@
 'use strict'
 
-const notificationPrivateKeys = [
-  require.resolve('../tests/data/notificationSigningPrivate1.pem'),
-  require.resolve('../tests/data/notificationSigningPrivate2.pem'),
-  require.resolve('../tests/data/notificationSigningPrivate3.pem')
-]
-const notificationPublicKeys = [
-  require.resolve('../tests/data/notificationSigningPublic1.pem'),
-  require.resolve('../tests/data/notificationSigningPublic2.pem'),
-  require.resolve('../tests/data/notificationSigningPublic3.pem')
-]
-const notificationConditions = [
-  'cc:3:11:VIXEKIp-38aZuievH3I3PyOobH6HW-VD4LP6w-4s3gA:518',
-  'cc:3:11:Mjmrcm06fOo-3WOEZu9YDSNfqmn0lj4iOsTVEurtCdI:518',
-  'cc:3:11:xnTtXKlRuFnFFDTgnSxFn9mYMeimdhbWaZXPAp5Pbs0:518'
-]
-
 class ServiceGraph {
   /**
    * @param {ServiceManager} services
@@ -24,14 +8,9 @@ class ServiceGraph {
     this.services = services
     this.numLedgers = 0
     this.connectors = {} // { connectorName ⇒ {edges, port} }
-    this.notificationConditions = {}
   }
 
   startLedger (name, port, options) {
-    const host = 'http://localhost:' + port
-    this.notificationConditions[host] = notificationConditions[this.numLedgers % 3]
-    options.notificationPrivateKey = notificationPrivateKeys[this.numLedgers % 3]
-    options.notificationPublicKey = notificationPublicKeys[this.numLedgers % 3]
     this.numLedgers++
     return this.services.startLedger(name, port, options)
   }
@@ -40,7 +19,6 @@ class ServiceGraph {
     this.connectors[name] = options
     options.pairs = this.edgesToPairs(options.edges)
     options.credentials = this.edgesToCredentials(options.edges, name)
-    options.notificationKeys = this.notificationConditions
     yield this.setupConnectorAccounts(name)
     yield this.services.startConnector(name, options)
   }

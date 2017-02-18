@@ -37,8 +37,7 @@ describe('Connector starts before ledgers', function () {
             password: 'mark'
           }
         }
-      },
-      notificationKeys: graph.notificationConditions
+      }
     })
     graph.connectors['mark'] = {
       edges: [ {source: 'test1.ledger1.', target: 'test1.ledger2.'} ]
