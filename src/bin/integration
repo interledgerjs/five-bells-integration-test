@@ -12,7 +12,6 @@ const dependencies = new DependencyManager({ defaultDependencies: {
   'five-bells-ledger': 'interledgerjs/five-bells-ledger',
   'ilp-connector': 'interledgerjs/ilp-connector',
   'five-bells-notary': 'interledgerjs/five-bells-notary',
-  'five-bells-receiver': 'interledgerjs/five-bells-receiver',
   'ilp': 'interledgerjs/ilp',
   'ilp-core': 'interledgerjs/ilp-core',
   'ilp-plugin-bells': 'interledgerjs/ilp-plugin-bells',
