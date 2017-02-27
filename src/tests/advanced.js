@@ -486,5 +486,35 @@ describe('Advanced', function () {
       yield services.assertBalance('test2.ledger2.', 'mark2', '52.85')
       yield graph.assertZeroHold()
     })
+
+    it('receiver rejects a payment with an expired packet', function * () {
+      let cancelled = false
+      yield services.sendPayment({
+        sourceAccount: 'test2.ledger1.alice',
+        sourcePassword: 'alice',
+        destinationAccount: 'test2.ledger2.bob',
+        sourceAmount: '10',
+        overrideMemoParams: { expires_at: (new Date()).toISOString() }, // already expired
+        onOutgoingReject: (transfer, rejectionMessage) => {
+          assert.deepEqual(rejectionMessage, {
+            code: 'R01',
+            name: 'Transfer Timed Out',
+            message: 'got notification of transfer with expired packet',
+            additional_info: {},
+            triggered_at: rejectionMessage.triggered_at,
+            triggered_by: 'test2.ledger2.bob',
+            forwarded_by: 'test2.ledger1.mark2'
+          })
+          cancelled = true
+        }
+      })
+
+      assert(cancelled)
+      yield services.assertBalance('test2.ledger1.', 'alice', '100')
+      yield services.assertBalance('test2.ledger1.', 'mark2', '1000')
+      yield services.assertBalance('test2.ledger2.', 'mark2', '1000')
+      yield services.assertBalance('test2.ledger2.', 'bob', '100')
+      yield graph.assertZeroHold()
+    })
   })
 })

@@ -51,7 +51,7 @@
     "co-child-process": "^1.1.0",
     "co-mocha": "^1.1.2",
     "five-bells-integration-test-loader": "^1.0.0",
-    "five-bells-service-manager": "^5.4.0",
+    "five-bells-service-manager": "^6.0.0",
     "git-branch": "^0.3.0",
     "mocha": "^2.4.5",
     "node-fetch": "^1.3.3"
