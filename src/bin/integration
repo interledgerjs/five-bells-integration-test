@@ -15,7 +15,8 @@ const dependencies = new DependencyManager({ defaultDependencies: {
   'ilp': 'interledgerjs/ilp',
   'ilp-core': 'interledgerjs/ilp-core',
   'ilp-plugin-bells': 'interledgerjs/ilp-plugin-bells',
-  'ilp-kit': 'interledgerjs/ilp-kit'
+  'ilp-kit': 'interledgerjs/ilp-kit',
+  'ilp-plugin-virtual': 'interledgerjs/ilp-plugin-virtual'
 }})
 const commands = ['all', 'setup', 'test']
 const mocha = path.resolve(require.resolve('mocha'), '../bin/mocha')
