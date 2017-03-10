@@ -1,6 +1,5 @@
 'use strict'
 
-const assert = require('assert')
 const fs = require('fs')
 const request = require('superagent')
 
@@ -85,11 +84,31 @@ class KitManager {
     }
   }
 
-  * assertBalance (kitConfig, name, expectedBalance, epsilon) {
-    epsilon = epsilon || 0
-    const balance = yield this.services.getBalance(kitConfig.LEDGER_ILP_PREFIX, name)
-    assert(Math.abs(balance - expectedBalance) <= epsilon,
-         `Balance is ${balance}, but expected is ${expectedBalance}`)
+  * assertBalance (kitConfig, name, expectedBalance) {
+    const ledgerPrefix = kitConfig.LEDGER_ILP_PREFIX
+    yield this.services.assertBalance(ledgerPrefix, name, expectedBalance)
+  }
+
+  * createInvite (kitConfig, amount) {
+    try {
+      const resp = yield request
+        .post(`https://${kitConfig.API_HOSTNAME}:${kitConfig.API_PUBLIC_PORT}/api/invites`)
+        .auth('admin', 'admin')
+        .set('Content-Type', 'application/json')
+        .send({amount: amount})
+
+      return resp.body.code
+    } catch (err) {
+      console.log(err)
+      throw new Error('Error while requesting an invite code: ')
+    }
+  }
+
+  * createUser (kitConfig, data) {
+    return yield request
+      .post(`http://${kitConfig.API_HOSTNAME}:${kitConfig.API_PORT}/users/${data.username}`)
+      .auth('admin', 'admin')
+      .send(data)
   }
 }
 
