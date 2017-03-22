@@ -64,8 +64,6 @@ function * peer () {
       })
       success = true
     } catch (err) {
-      console.log(err)
-      console.log('Retrying to peer')
       yield sleep(2000) // wait before retrying
     }
   }
@@ -80,34 +78,30 @@ function * peer () {
 
 describe('ILP Kit Test Suite -', function () {
   before(function * () {
-    try {
-      // accept self-signed certificates
-      process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
+    // accept self-signed certificates
+    process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0
 
-      yield setupApache()
+    yield setupApache()
 
-      let startupPromises = []
-      for (const config of configFiles) {
-        const p = kitManager.startKit(config)
-        startupPromises.push(p)
-      }
-      yield Promise.all(startupPromises)
-
-      yield peer()
-
-      // wait until routes are broadcasted
-      let maxBroadcastInterval = 0
-      for (const c in configFiles) {
-        const interval = c.CONNECTOR_ROUTE_BROADCAST_INTERVAL ||
-                          30000 // 30000 is the connector default
-        if (interval > maxBroadcastInterval) {
-          maxBroadcastInterval = interval
-        }
-      }
-      yield sleep(maxBroadcastInterval)
-    } catch (e) {
-      console.log(e)
+    let startupPromises = []
+    for (const config of configFiles) {
+      const p = kitManager.startKit(config)
+      startupPromises.push(p)
     }
+    yield Promise.all(startupPromises)
+
+    yield peer()
+
+    // wait until routes are broadcasted
+    let maxBroadcastInterval = 0
+    for (const c of kitManager.kits) {
+      const interval = c.CONNECTOR_ROUTE_BROADCAST_INTERVAL ||
+                        30000 // 30000 is the connector default
+      if (interval > maxBroadcastInterval) {
+        maxBroadcastInterval = interval
+      }
+    }
+    yield sleep(maxBroadcastInterval)
   })
 
   beforeEach(function * () {
@@ -131,30 +125,94 @@ describe('ILP Kit Test Suite -', function () {
         .auth(expectedUser, expectedUser)
 
       const expectedStatus = 200
-      assert.equal(resp.statusCode, expectedStatus, `HTTP status code is ${resp.statusCode}, 
-        but expected is ${expectedStatus}`)
+      assertStatusCode(resp, expectedStatus)
+
       assert.equal(resp.body.username, expectedUser, `Username is ${resp.body.username}, 
         but expected is ${expectedUser}`)
     })
 
-    it('Create a user', function * () {
+    it('Create an user', function * () {
       const config = kitManager.kits[0]
       const expectedUser = 'daryl'
-      const resp = yield request
-        .post(`http://${config.API_HOSTNAME}:${config.API_PORT}/users/${expectedUser}`)
-        .auth('admin', 'admin')
-        .send({
-          username: 'daryl',
-          email: 'daryl@some.example',
-          password: 'daryl'
-        })
+      const resp = yield kitManager.createUser(config, {
+        username: expectedUser,
+        email: 'daryl@some.example',
+        password: 'daryl'
+      })
 
       const expectedStatus = 201
-      assert.equal(resp.statusCode, expectedStatus, `HTTP status code is ${resp.statusCode}, 
-        but expected is ${expectedStatus}`)
+      assertStatusCode(resp, expectedStatus)
+
       assert.equal(resp.body.username, expectedUser, `Username is ${resp.body.username}, 
         but expected is ${expectedUser}`)
-      yield kitManager.assertBalance(kitManager.kits[0], 'daryl', '0')
+      yield kitManager.assertBalance(kitManager.kits[0], expectedUser, 0)
+    })
+
+    it('Create an user for which a ledger account already exists', function * () {
+      const config = kitManager.kits[0]
+      const user = 'lenny'
+      const expectedErrorId = 'UsernameTakenError'
+
+      // create ledger account
+      services.updateAccount(config.LEDGER_ILP_PREFIX, user)
+      // check that the user is not created on the ilp kit
+      let actualErrorId = ''
+      try {
+        yield kitManager.createUser(config, {
+          username: user,
+          password: 'newPassw0rd'
+        })
+      } catch (err) {
+        actualErrorId = err.response.body.id
+      }
+      assert.deepStrictEqual(actualErrorId, expectedErrorId,
+        'Expected an error of type ' + expectedErrorId + ', but was ' + actualErrorId)
+    })
+
+    it('Create an user with an invite code', function * () {
+      const config = kitManager.kits[0]
+
+      const expectedUser = 'carol'
+      const expectedInviteAmount = 222
+
+      const code = yield kitManager.createInvite(config, expectedInviteAmount)
+      const resp = yield kitManager.createUser(config, {
+        username: expectedUser,
+        email: 'some@email.example',
+        password: 'Passw0rd',
+        inviteCode: code
+      })
+
+      const expectedStatus = 201
+      assertStatusCode(resp, expectedStatus)
+
+      assert.equal(resp.body.username, expectedUser,
+        `Username is ${resp.body.username}, but expected is ${expectedUser}`)
+      yield kitManager.assertBalance(kitManager.kits[0], expectedUser,
+        expectedInviteAmount)
+    })
+
+    it('Use the same invite code twice', function * () {
+      const config = kitManager.kits[0]
+
+      const expectedInviteAmount = 222
+      const code = yield kitManager.createInvite(config, expectedInviteAmount)
+      const data = { password: 'Passw0rd', inviteCode: code }
+
+      // create an account and claim the code
+      let resp = yield kitManager.createUser(config, Object.assign({
+        username: 'rick'
+      }, data))
+      assertStatusCode(resp, 201)
+
+      // create a second account claiming the same code
+      resp = yield kitManager.createUser(config, Object.assign({
+        username: 'michonne'
+      }, data))
+      assertStatusCode(resp, 201)
+
+      yield kitManager.assertBalance(config, 'rick', expectedInviteAmount)
+      yield kitManager.assertBalance(config, 'michonne', 0)
     })
 
     it('Update a user', function * () {
@@ -171,8 +229,8 @@ describe('ILP Kit Test Suite -', function () {
         })
 
       const expectedStatus = 200
-      assert.equal(resp.statusCode, expectedStatus, `HTTP status code is ${resp.statusCode}, 
-        but expected is ${expectedStatus}`)
+      assertStatusCode(resp, expectedStatus)
+
       assert.equal(resp.body.name, expectedName, `Name is ${resp.body.username}, 
         but expected is ${expectedName}`)
       assert.equal(resp.body.email, expectedMail, `Mail is ${resp.body.username}, 
