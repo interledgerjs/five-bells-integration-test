@@ -7,8 +7,9 @@
     "integration": "src/bin/integration"
   },
   "scripts": {
-    "test": "node ./src/bin/integration all",
-    "lint": "eslint ."
+    "test": "npm run integration",
+    "lint": "eslint .",
+    "integration": "integration-loader && node ./src/bin/integration all"
   },
   "repository": {
     "type": "git",
@@ -51,9 +52,14 @@
     "co-child-process": "^1.1.0",
     "co-mocha": "^1.1.2",
     "five-bells-integration-test-loader": "^1.0.0",
-    "five-bells-service-manager": "^7.0.0",
     "git-branch": "^0.3.0",
     "mocha": "^2.4.5",
     "node-fetch": "^1.3.3"
+  },
+  "config": {
+    "five-bells-integration-test-loader": {
+      "module": "five-bells-integration-test",
+      "repo": "interledgerjs/five-bells-integration-test"
+    }
   }
 }
