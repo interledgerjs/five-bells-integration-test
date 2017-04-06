@@ -21,7 +21,7 @@ const dependencies = new DependencyManager({ defaultDependencies: {
 const commands = ['all', 'setup', 'test']
 const mocha = path.resolve(require.resolve('mocha'), '../bin/mocha')
 
-function mochaRun(testName) {
+function mochaRun (testName) {
   return spawn(mocha, [
     path.resolve(__dirname, `../tests/${testName}.js`),
     '--no-timeouts',
@@ -29,7 +29,7 @@ function mochaRun(testName) {
   ], {
     cwd: dependencies.testDir,
     stdio: 'inherit'
-  });
+  })
 }
 
 function usage () {
