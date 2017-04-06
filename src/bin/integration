@@ -21,12 +21,24 @@ const dependencies = new DependencyManager({ defaultDependencies: {
 const commands = ['all', 'setup', 'test']
 const mocha = path.resolve(require.resolve('mocha'), '../bin/mocha')
 
+function mochaRun(testName) {
+  return spawn(mocha, [
+    path.resolve(__dirname, `../tests/${testName}.js`),
+    '--no-timeouts',
+    '-r', 'co-mocha'
+  ], {
+    cwd: dependencies.testDir,
+    stdio: 'inherit'
+  });
+}
+
 function usage () {
-  console.error('usage: ' + process.argv[1] + ' <command>')
+  console.error('usage: ' + process.argv[1] + ' <command> [<tests>]')
   console.error('commands:')
   console.error('  all    # setup then test')
   console.error('  setup  # download five-bells services')
   console.error('  test   # run integration tests')
+  console.error('tests: space-separated list. Defaults to "index advanced connector_first ilp-kit"')
   process.exit(1)
 }
 
@@ -36,18 +48,14 @@ Promise.coroutine(function * () {
   if (command === 'all' || command === 'setup') {
     code = code || (yield dependencies.install())
   }
+  let tests = process.argv.slice(3)
+  if (tests.length === 0) {
+    tests = ['index', 'advanced', 'connector_first', 'ilp-kit']
+  }
   if (command === 'all' || command === 'test') {
-    code = code || (yield spawn(mocha, [
-      path.resolve(__dirname, '../tests/index.js'),
-      path.resolve(__dirname, '../tests/advanced.js'),
-      path.resolve(__dirname, '../tests/connector_first.js'),
-      path.resolve(__dirname, '../tests/ilp-kit.js'),
-      '--no-timeouts',
-      '-r', 'co-mocha'
-    ], {
-      cwd: dependencies.testDir,
-      stdio: 'inherit'
-    }))
+    while (tests.length && !code) {
+      code = code || (yield mochaRun(tests.shift()))
+    }
   }
   process.exit(code)
 })().done()
