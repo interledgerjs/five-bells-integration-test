@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -yq \
     postgresql \
     postgresql-contrib \
     postgresql-client \
+    psmisc \
     python \
     sudo \
     vim
