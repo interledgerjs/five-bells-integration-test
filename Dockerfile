@@ -70,8 +70,8 @@ RUN source $NVM_DIR/nvm.sh && node ./src/bin/integration setup
 # (skipping the `npm rebuild node-sass` part since webpack seems to work fine now, without it)
 RUN source $NVM_DIR/nvm.sh && cd integration-test/ilp-kit && npm run build
 
-# and we leave 2b. from `npm run integration` as the run-time command:
-CMD source ~/.bashrc && ./src/bin/integration test
+# and we leave 2b. from `node ./src/bin/integration test` as the run-time command:
+CMD . "$NVM_DIR/nvm.sh" && sudo -u postgres /usr/lib/postgresql/9.5/bin/pg_ctl -D /data -l /data/logfile start && /etc/init.d/apache2 start && ./src/bin/integration test
 
 # to use this Dockerfile, simply do something like:
 # docker build -t five-bells-integration-test .
