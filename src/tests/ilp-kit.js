@@ -253,30 +253,33 @@ describe('ILP Kit Test Suite -', function () {
       const config = kitManager.kits[0]
       const sourceAmount = 5.1016
       const destinationAmount = 5
-      const resp = yield request
-        .post(`https://${config.API_HOSTNAME}:${config.API_PUBLIC_PORT}/api/payments/quote`)
-        .auth('alice', 'alice')
-        .set('Content-Type', 'application/json')
-        .send({ destination: 'bob@wallet2.example', destinationAmount })
-      assertStatusCode(resp, 200)
 
-      assert(resp.body.sourceAmount, sourceAmount,
-        `sourceAmount is ${resp.body.sourceAmount}, but expected is ${sourceAmount}`)
-      assert.equal(resp.body.destinationAmount, destinationAmount,
-        `destinationAmount is ${resp.body.destinationAmount}, but expected is ${destinationAmount}`)
+      const quote = yield kitManager.quote(config, 'alice', {
+        destination: 'bob@wallet2.example',
+        destinationAmount: destinationAmount
+      })
+
+      assert(quote.body.sourceAmount, sourceAmount,
+        `sourceAmount is ${quote.body.sourceAmount}, but expected is ${sourceAmount}`)
+      assert.equal(quote.body.destinationAmount, destinationAmount,
+        `destinationAmount is ${quote.body.destinationAmount}, but expected is ${destinationAmount}`)
     })
 
     it('Make an intraledger payment', function * () {
       const config = kitManager.kits[0]
+
+      const quote = yield kitManager.quote(config, 'alice', {
+        destination: 'bob@wallet1.example',
+        destinationAmount: 1
+      })
+
       const resp = yield request
         .put(`https://${config.API_HOSTNAME}:${config.API_PUBLIC_PORT}/api/payments/9efa70ec-08b9-11e6-b512-3e1d05defe78`)
         .auth('alice', 'alice')
         .set('Content-Type', 'application/json')
         .send({
-          destination: 'bob@wallet1.example:443',
-          destinationAmount: 1,
-          sourceAmount: 1,
-          message: 'intraledger payment test'
+          destination: {identifier: 'bob@wallet1.example:443'},
+          quote: quote.body
         })
       assertStatusCode(resp, 200)
       yield kitManager.assertBalance(kitManager.kits[0], 'alice', '999')
@@ -285,14 +288,19 @@ describe('ILP Kit Test Suite -', function () {
 
     it('Make an interledger payment (same currency)', function * () {
       const config = kitManager.kits[0]
+
+      const quote = yield kitManager.quote(config, 'alice', {
+        destination: 'bob@wallet2.example',
+        destinationAmount: 5
+      })
+
       const resp = yield request
         .put(`https://${config.API_HOSTNAME}:${config.API_PUBLIC_PORT}/api/payments/aaaa70ec-08b9-11e6-b512-3e1d05defe78`)
         .auth('alice', 'alice')
         .set('Content-Type', 'application/json')
         .send({
-          destination: 'bob@wallet2.example:443',
-          destinationAmount: 5,
-          message: 'interledger payment test'
+          destination: {identifier: 'bob@wallet2.example:443'},
+          quote: quote.body
         })
       assertStatusCode(resp, 200)
 

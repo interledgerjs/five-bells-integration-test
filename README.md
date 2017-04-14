@@ -68,8 +68,9 @@ $ git checkout mj-currency_scale
 $ ./node_modules/.bin/integration-loader
 $ src/bin/integration setup
 $ cd integration-test/ilp-kit
-$ npm run build # this is necessary because running npm install as root causes it to skip the postinstall hook
+$ npm rebuild node-sass; npm run build # this is necessary because running npm install as root causes it to skip the postinstall hook
 $ cd ../..
+$ ps auxwww # kill any npm/node processes still running from previous runs
 $ src/bin/integration test connector_first
 $ src/bin/integration test
 ```

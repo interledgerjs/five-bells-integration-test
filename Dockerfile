@@ -20,7 +20,7 @@ RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 # install nodejs using nvm
 ENV NVM_DIR /usr/local/nvm
-ENV NODE_VERSION 6.9.1
+ENV NODE_VERSION 7.7.1
 
 RUN curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.1/install.sh | bash \
     && source $NVM_DIR/nvm.sh \
@@ -70,8 +70,8 @@ RUN source $NVM_DIR/nvm.sh && node ./src/bin/integration setup
 # (skipping the `npm rebuild node-sass` part since webpack seems to work fine now, without it)
 RUN source $NVM_DIR/nvm.sh && cd integration-test/ilp-kit && npm run build
 
-# and we leave 2b. from `npm run integration` as the run-time command:
-CMD source ~/.bashrc && ./src/bin/integration test
+# and we leave 2b. from `node ./src/bin/integration test` as the run-time command:
+CMD . "$NVM_DIR/nvm.sh" && sudo -u postgres /usr/lib/postgresql/9.5/bin/pg_ctl -D /data -l /data/logfile start && /etc/init.d/apache2 start && ./src/bin/integration test
 
 # to use this Dockerfile, simply do something like:
 # docker build -t five-bells-integration-test .

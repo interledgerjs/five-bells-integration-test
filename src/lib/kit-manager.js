@@ -77,7 +77,7 @@ class KitManager {
         .send({
           hostname: hostname,
           limit: limit,
-          currency: currency})
+          currencyCode: currency})
     } catch (err) {
       throw new Error(`Error while trying to add peer ${hostname} to 
         ${kitConfig.API_HOSTNAME}: ${err}`)
@@ -109,6 +109,14 @@ class KitManager {
       .post(`http://${kitConfig.API_HOSTNAME}:${kitConfig.API_PORT}/users/${data.username}`)
       .auth('admin', 'admin')
       .send(data)
+  }
+
+  * quote (kitConfig, user, data) {
+    return yield request
+        .post(`https://${kitConfig.API_HOSTNAME}:${kitConfig.API_PUBLIC_PORT}/api/payments/quote`)
+        .auth(user, user)
+        .set('Content-Type', 'application/json')
+        .send(data)
   }
 }
 
