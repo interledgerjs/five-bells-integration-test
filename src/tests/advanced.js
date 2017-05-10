@@ -18,15 +18,11 @@ describe('Advanced', function () {
   before(function * () {
     yield graph.startLedger('test2.ledger1.', 3101, {
       scale: 4,
-      recommendedConnectors: 'mark2,mary2,martin2,millie2,michael2'
+      recommendedConnectors: 'mark2,martin2,millie2,michael2'
     })
     yield graph.startLedger('test2.ledger2.', 3102, {
       scale: 2,
       recommendedConnectors: 'mark2,mesrop2'
-    })
-    yield graph.startLedger('test2.ledger3.', 3103, {
-      scale: 4,
-      recommendedConnectors: 'mary2'
     })
     yield graph.startLedger('test2.ledger4.', 3104, {
       scale: 4,
@@ -82,11 +78,6 @@ describe('Advanced', function () {
       edges: [{source: 'test2.ledger1.', target: 'test2.ledger2.'}]
     })
 
-    yield graph.startConnector('mary2', {
-      edges: [{source: 'test2.ledger1.', target: 'test2.ledger3.'}],
-      slippage: '0'
-    })
-
     yield graph.startConnector('martin2', {
       edges: [{source: 'test2.ledger1.', target: 'test2.ledger4.'}],
       fxSpread: '0.5'
@@ -104,8 +95,7 @@ describe('Advanced', function () {
 
     yield graph.startConnector('mesrop2', {
       edges: [{source: 'test2.ledger2.', target: 'test2.ledger8.'}],
-      fxSpread: (1 - 0.877980).toFixed(8),
-      slippage: '0'
+      fxSpread: (1 - 0.877980).toFixed(8)
     })
 
     yield graph.startConnector('michelle2', {
@@ -121,12 +111,10 @@ describe('Advanced', function () {
 
     yield graph.startConnector('michael2', {
       edges: [{source: 'test2.ledger1.', target: 'test2.ledger9.'}],
-      slippage: '0',
       fxSpread: '0'
     })
     yield graph.startConnector('micah2', {
       edges: [{source: 'test2.ledger9.', target: 'test2.ledger10.'}],
-      slippage: '0',
       fxSpread: '0'
     })
 
@@ -163,7 +151,6 @@ describe('Advanced', function () {
       //    100       USD
       //  +   4.9999  USD (money from Alice)
       //  -   0.0099‥ USD (mark: spread/fee)
-      //  -   0.0049‥ USD (mark: quoted connector slippage)
       //  ===============
       //    104.9851  USD
       //    104.98    USD (round down)
@@ -192,44 +179,15 @@ describe('Advanced', function () {
       //    100       USD
       //  +   4.99    USD (money from Alice)
       //  -   0.00998 USD (mark: spread/fee)
-      //  -   0.00498 USD (mark: quoted connector slippage; (4.99 - 0.00998) * 0.001 = 0.00498002)
       //  ===============
-      //    104.97504 USD
-      //    104.9750  USD (round destination amount down)
-      yield services.assertBalance('test2.ledger1.', 'bob', '104.975')
-      yield services.assertBalance('test2.ledger1.', 'mark2', '995.025')
+      //    104.98002 USD
+      //    104.9800  USD (round destination amount down)
+      yield services.assertBalance('test2.ledger1.', 'bob', '104.98')
+      yield services.assertBalance('test2.ledger1.', 'mark2', '995.02')
       yield graph.assertZeroHold()
     })
 
-    it('zero slippage', function * () {
-      yield services.sendPayment({
-        sourceAccount: 'test2.ledger1.alice',
-        sourcePassword: 'alice',
-        destinationAccount: 'test2.ledger3.bob',
-        sourceAmount: '5'
-      })
-
-      // Alice should have:
-      //    100      USD
-      //  -   5      USD (sent to Bob)
-      //  ==============
-      //     95      USD
-      yield services.assertBalance('test2.ledger1.', 'alice', '95')
-      yield services.assertBalance('test2.ledger1.', 'mary2', '1005')
-
-      // Bob should have:
-      //    100      USD
-      //  +   5      USD (money from Alice)
-      //  -   0.01   USD (mary: spread/fee)
-      //  -   0      USD (mary: quoted connector slippage)
-      //  ==============
-      //    104.9900 USD
-      yield services.assertBalance('test2.ledger3.', 'bob', '104.99')
-      yield services.assertBalance('test2.ledger3.', 'mary2', '995.01')
-      yield graph.assertZeroHold()
-    })
-
-    it('zero slippage and zero spread', function * () {
+    it('zero spread', function * () {
       yield services.sendPayment({
         sourceAccount: 'test2.ledger1.alice',
         sourcePassword: 'alice',
@@ -252,7 +210,6 @@ describe('Advanced', function () {
       //    100      USD
       //  +  10      USD (money from Alice)
       //  -   0      USD (michael: spread/fee)
-      //  -   0      USD (michael: quoted connector slippage)
       //  ==============
       //    110.0000 USD
       yield services.assertBalance('test2.ledger10.', 'bob', '110')
@@ -280,11 +237,10 @@ describe('Advanced', function () {
       //    100      USD
       //  +   5      USD (money from Alice)
       //  -   2.5    USD (martin: spread/fee)
-      //  -   0.0025 USD (martin: quoted connector slippage; (5 - 2.5) * 0.001)
       //  ==============
-      //    102.4975 USD
-      yield services.assertBalance('test2.ledger4.', 'bob', '102.4975')
-      yield services.assertBalance('test2.ledger4.', 'martin2', '997.5025')
+      //    102.5    USD
+      yield services.assertBalance('test2.ledger4.', 'bob', '102.5')
+      yield services.assertBalance('test2.ledger4.', 'martin2', '997.5')
       yield graph.assertZeroHold()
     })
 
@@ -294,9 +250,7 @@ describe('Advanced', function () {
         sourceAccount: 'test2.ledger1.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test2.ledger7.bob',
-        sourceAmount: '4.9999',
-        destinationPrecision: '10',
-        destinationScale: '4'
+        sourceAmount: '4.9999'
       })
 
       // Alice should have:
@@ -332,15 +286,12 @@ describe('Advanced', function () {
       //  +   4.9999    USD (original amount from Alice)
       //  ×   0.998         (millie: spread/fee 1→5; 0.998 = 1 - 0.002)
       //  ×   0.998         (mia: spread/fee 5→6)
-      //  -   0.0001    USD (mia: 1/10^ledger6_scale)
       //  ×   0.998         (mike: spread/fee 6→7)
-      //  -   0.0001    USD (mike: 1/10^ledger7_scale)
-      //  ×   0.999         (millie: quoted connector slippage; 0.999 = 1 - 0.001)
       //  =================
-      //    104.9647909 USD
-      //    104.9647    USD (round destination down)
-      yield services.assertBalance('test2.ledger7.', 'bob', '104.9649')
-      yield services.assertBalance('test2.ledger7.', 'mike2', '995.0351')
+      //    104.9699605 USD
+      //    104.9699    USD (round destination down)
+      yield services.assertBalance('test2.ledger7.', 'bob', '104.9699')
+      yield services.assertBalance('test2.ledger7.', 'mike2', '995.0301')
       yield graph.assertZeroHold()
     })
 
@@ -454,8 +405,8 @@ describe('Advanced', function () {
 
       yield services.assertBalance('test2.ledger1.', 'alice', '1000') // 1950 - 950
       yield services.assertBalance('test2.ledger1.', 'mark2', '1950') // 1000 + 950
-      yield services.assertBalance('test2.ledger2.', 'bob', '1047.15') // 100 + ~950
-      yield services.assertBalance('test2.ledger2.', 'mark2', '52.85') // 1000 - ~950
+      yield services.assertBalance('test2.ledger2.', 'bob', '1048.1') // 100 + ~950
+      yield services.assertBalance('test2.ledger2.', 'mark2', '51.9') // 1000 - ~950
 
       let cancelled = false
       // This payment should fail. The quote succeeds without triggering insufficient
@@ -482,8 +433,8 @@ describe('Advanced', function () {
 
       yield services.assertBalance('test2.ledger1.', 'alice', '1000')
       yield services.assertBalance('test2.ledger1.', 'mark2', '1950')
-      yield services.assertBalance('test2.ledger2.', 'bob', '1047.15')
-      yield services.assertBalance('test2.ledger2.', 'mark2', '52.85')
+      yield services.assertBalance('test2.ledger2.', 'bob', '1048.1')
+      yield services.assertBalance('test2.ledger2.', 'mark2', '51.9')
       yield graph.assertZeroHold()
     })
 

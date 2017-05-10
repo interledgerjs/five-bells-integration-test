@@ -51,9 +51,11 @@ describe('Connector starts before ledgers', function () {
     yield graph.startLedger('test1.ledger1.', 3001, {
       recommendedConnectors: 'mark'
     })
+    yield services.updateAccount('test1.ledger1.', 'mark', {balance: '1000'})
     yield graph.startLedger('test1.ledger2.', 3002, {
       recommendedConnectors: 'mark'
     })
+    yield services.updateAccount('test1.ledger2.', 'mark', {balance: '1000'})
 
     yield graph.setupAccounts()
     yield connectorReady
@@ -79,11 +81,10 @@ describe('Connector starts before ledgers', function () {
       //  -   5      USD (sent to Bob)
       //  -   0.01   USD (connector spread/fee)
       //  -   0.0001 USD (connector rounding in its favor)
-      //  -   0.005  USD (mark: quoted connector slippage)
       //  ==============
-      //     94.9849 USD
-      yield services.assertBalance('test1.ledger1.', 'alice', '94.9849')
-      yield services.assertBalance('test1.ledger1.', 'mark', '1005.0151')
+      //     94.9899 USD
+      yield services.assertBalance('test1.ledger1.', 'alice', '94.9899')
+      yield services.assertBalance('test1.ledger1.', 'mark', '1005.0101')
 
       // Bob should have:
       //    100      USD

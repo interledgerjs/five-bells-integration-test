@@ -82,11 +82,10 @@ describe('Basic', function () {
       //  -   5      USD (sent to Bob)
       //  -   0.01   USD (connector spread/fee)
       //  -   0.0001 USD (connector rounding in its favor)
-      //  -   0.005  USD (mark: quoted connector slippage)
       //  ==============
       //     94.9849 USD
-      yield services.assertBalance('test1.ledger1.', 'alice', '94.9849')
-      yield services.assertBalance('test1.ledger1.', 'mark', '1005.0151')
+      yield services.assertBalance('test1.ledger1.', 'alice', '94.9899')
+      yield services.assertBalance('test1.ledger1.', 'mark', '1005.0101')
 
       // Bob should have:
       //    100      USD
@@ -118,11 +117,10 @@ describe('Basic', function () {
       //    100      USD
       //  +   5      USD (money from Alice)
       //  -   0.01   USD (connector spread/fee)
-      //  -   0.005  USD (mark: quoted connector slippage)
       //  ==============
       //    104.9850  USD
-      yield services.assertBalance('test1.ledger2.', 'bob', '104.985')
-      yield services.assertBalance('test1.ledger2.', 'mark', '995.015')
+      yield services.assertBalance('test1.ledger2.', 'bob', '104.99')
+      yield services.assertBalance('test1.ledger2.', 'mark', '995.01')
       yield graph.assertZeroHold()
     })
 
@@ -164,15 +162,14 @@ describe('Basic', function () {
       //  -   0.01   USD (mary: connector spread/fee)
       //  -   0.0001 USD (mary: 1/10^scale)
       //  -   0.01   USD (mark: connector spread/fee)
-      //  -   0.005  USD (mark: quoted connector slippage)
       //  -   0.0001 USD (mark: round source amount up)
       //  ==============
       //     94.9748 USD
-      yield services.assertBalance('test1.ledger1.', 'alice', '94.9748')
-      yield services.assertBalance('test1.ledger1.', 'mark', '1005.0252')
+      yield services.assertBalance('test1.ledger1.', 'alice', '94.9798')
+      yield services.assertBalance('test1.ledger1.', 'mark', '1005.0202')
 
-      yield services.assertBalance('test1.ledger2.', 'mark', '994.9849')
-      yield services.assertBalance('test1.ledger2.', 'mary', '1005.0151')
+      yield services.assertBalance('test1.ledger2.', 'mark', '994.9899')
+      yield services.assertBalance('test1.ledger2.', 'mary', '1005.0101')
 
       // Bob should have:
       //    100      USD
@@ -198,7 +195,6 @@ describe('Basic', function () {
       //  -   0.00002 USD (mary: connector spread/fee)
       //  -   0.0001  USD (mary: 1/10^scale)
       //  -   0.00002 USD (mark: connector spread/fee)
-      //  -   0.00001 USD (mark: quoted connector slippage)
       //  -   0.00005 USD (mark: round source amount up)
       //  ===============
       //     99.9898  USD
@@ -223,9 +219,7 @@ describe('Basic', function () {
         sourceAccount: 'test1.ledger1.alice',
         sourcePassword: 'alice',
         destinationAccount: 'test1.ledger3.bob',
-        sourceAmount: '0.01',
-        destinationPrecision: '10',
-        destinationScale: '4'
+        sourceAmount: '0.01'
       })
 
       // Alice should have:
@@ -245,12 +239,10 @@ describe('Basic', function () {
       //  -   0.00002 USD (mary: connector spread/fee)
       //  -   0.0001  USD (mary: 1/10^scale)
       //  -   0.00002 USD (mark: connector spread/fee)
-      //  -   0.00001 USD (mark: quoted connector slippage)
-      //  -   0.00005 USD (mark: round destination amount down)
       //  ===============
       //    100.0098  USD
-      yield services.assertBalance('test1.ledger3.', 'bob', '100.0097')
-      yield services.assertBalance('test1.ledger3.', 'mary', '999.9903')
+      yield services.assertBalance('test1.ledger3.', 'bob', '100.0098')
+      yield services.assertBalance('test1.ledger3.', 'mary', '999.9902')
       yield graph.assertZeroHold()
     })
   })
@@ -271,11 +263,10 @@ describe('Basic', function () {
       //  -   5      USD (sent to Bob)
       //  -   0.01   USD (connector spread/fee)
       //  -   0.0001 USD (connector rounding in its favor)
-      //  -   0.005  USD (mark: quoted connector slippage)
       //  ==============
-      //     94.9849 USD
-      yield services.assertBalance('test1.ledger1.', 'alice', '94.9849')
-      yield services.assertBalance('test1.ledger1.', 'mark', '1005.0151')
+      //     94.9899 USD
+      yield services.assertBalance('test1.ledger1.', 'alice', '94.9899')
+      yield services.assertBalance('test1.ledger1.', 'mark', '1005.0101')
 
       // Bob should have:
       //    100      USD
@@ -310,11 +301,10 @@ describe('Basic', function () {
       //    100      USD
       //  +   5      USD (money from Alice)
       //  -   0.01   USD (connector spread/fee)
-      //  -   0.005  USD (mark: quoted connector slippage)
       //  ==============
-      //    104.9850  USD
-      yield services.assertBalance('test1.ledger2.', 'bob', '104.985')
-      yield services.assertBalance('test1.ledger2.', 'mark', '995.015')
+      //    104.99   USD
+      yield services.assertBalance('test1.ledger2.', 'bob', '104.99')
+      yield services.assertBalance('test1.ledger2.', 'mark', '995.01')
       yield graph.assertZeroHold()
     })
 
