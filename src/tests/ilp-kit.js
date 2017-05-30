@@ -176,11 +176,6 @@ describe('ILP Kit Test Suite -', function () {
       const expectedInviteAmount = 222
 
       const code = yield kitManager.createInvite(config, expectedInviteAmount)
-
-      // since the connector was just paid 1000 on creation,
-      // have to wait a bit before paying 222 to this user
-      // due to https://github.com/interledgerjs/five-bells-ledger/issues/402
-      yield sleep(1000)
       const resp = yield kitManager.createUser(config, {
         username: expectedUser,
         email: 'some@email.example',
@@ -203,11 +198,6 @@ describe('ILP Kit Test Suite -', function () {
       const expectedInviteAmount = 222
       const code = yield kitManager.createInvite(config, expectedInviteAmount)
       const data = { password: 'Passw0rd', inviteCode: code }
-
-      // since the connector was just paid 1000 on creation,
-      // have to wait a bit before paying 222 to this user
-      // due to https://github.com/interledgerjs/five-bells-ledger/issues/402
-      yield sleep(1000)
 
       // create an account and claim the code
       let resp = yield kitManager.createUser(config, Object.assign({
