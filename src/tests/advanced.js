@@ -283,11 +283,13 @@ describe('Advanced', function () {
       //  ×   0.998         (millie: spread/fee 1→5; 0.998 = 1 - 0.002)
       //  ×   0.998         (mia: spread/fee 5→6)
       //  ×   0.998         (mike: spread/fee 6→7)
+      //  -   0.0001    USD (mia rounding in her favor during quote-liquidity)
+      //  -   0.0001    USD (mike rounding in his favor during quote-liquidity)
       //  =================
-      //    104.9699605 USD
-      //    104.9699    USD (round destination down)
-      yield services.assertBalance('test2.ledger7.', 'bob', '104.9699')
-      yield services.assertBalance('test2.ledger7.', 'mike2', '995.0301')
+      //    104.9697605 USD
+      //    104.9697    USD (round destination down)
+      yield services.assertBalance('test2.ledger7.', 'bob', '104.9697')
+      yield services.assertBalance('test2.ledger7.', 'mike2', '995.0303')
     })
 
     it('rate check (by source amount)', function * () {
