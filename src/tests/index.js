@@ -58,9 +58,6 @@ describe('Basic', function () {
       yield services.assertBalance('test1.ledger1.', 'alice', '100')
       yield services.assertBalance('test1.ledger2.', 'bob', '100')
       // Connectors
-      yield services.assertBalance('test1.ledger1.', 'hold', '0')
-      yield services.assertBalance('test1.ledger2.', 'hold', '0')
-      yield services.assertBalance('test1.ledger3.', 'hold', '0')
       yield services.assertBalance('test1.ledger1.', 'mark', '1000')
       yield services.assertBalance('test1.ledger2.', 'mark', '1000')
       yield services.assertBalance('test1.ledger2.', 'mary', '1000')
@@ -94,7 +91,6 @@ describe('Basic', function () {
       //    105      USD
       yield services.assertBalance('test1.ledger2.', 'bob', '105')
       yield services.assertBalance('test1.ledger2.', 'mark', '995')
-      yield graph.assertZeroHold()
     })
 
     it('transfers the funds (by source amount)', function * () {
@@ -121,7 +117,6 @@ describe('Basic', function () {
       //    104.9850  USD
       yield services.assertBalance('test1.ledger2.', 'bob', '104.99')
       yield services.assertBalance('test1.ledger2.', 'mark', '995.01')
-      yield graph.assertZeroHold()
     })
 
     it('fails when there are insufficient source funds', function * () {
@@ -145,7 +140,6 @@ describe('Basic', function () {
       yield services.assertBalance('test1.ledger1.', 'mark', '1000')
       yield services.assertBalance('test1.ledger2.', 'bob', '100')
       yield services.assertBalance('test1.ledger2.', 'mark', '1000')
-      yield graph.assertZeroHold()
     })
 
     it('transfers a payment with 3 steps', function * () {
@@ -178,7 +172,6 @@ describe('Basic', function () {
       //    105      USD
       yield services.assertBalance('test1.ledger3.', 'bob', '105')
       yield services.assertBalance('test1.ledger3.', 'mary', '995')
-      yield graph.assertZeroHold()
     })
 
     it('transfers a small amount (by destination amount)', function * () {
@@ -211,7 +204,6 @@ describe('Basic', function () {
       //    100.01   USD
       yield services.assertBalance('test1.ledger3.', 'bob', '100.01')
       yield services.assertBalance('test1.ledger3.', 'mary', '999.99')
-      yield graph.assertZeroHold()
     })
 
     it('transfers a small amount (by source amount)', function * () {
@@ -243,7 +235,6 @@ describe('Basic', function () {
       //    100.0098  USD
       yield services.assertBalance('test1.ledger3.', 'bob', '100.0098')
       yield services.assertBalance('test1.ledger3.', 'mary', '999.9902')
-      yield graph.assertZeroHold()
     })
   })
 
@@ -275,7 +266,6 @@ describe('Basic', function () {
       //    105      USD
       yield services.assertBalance('test1.ledger2.', 'bob', '105')
       yield services.assertBalance('test1.ledger2.', 'mark', '995')
-      yield graph.assertZeroHold()
     })
   })
 
@@ -305,7 +295,6 @@ describe('Basic', function () {
       //    104.99   USD
       yield services.assertBalance('test1.ledger2.', 'bob', '104.99')
       yield services.assertBalance('test1.ledger2.', 'mark', '995.01')
-      yield graph.assertZeroHold()
     })
 
     it('transfers without hold, so payment can partially succeed', function * () {
@@ -334,7 +323,6 @@ describe('Basic', function () {
       // No change, since mary doesn't have any money to send bob.
       yield services.assertBalance('test1.ledger3.', 'bob', '100')
       yield services.assertBalance('test1.ledger3.', 'mary', '0')
-      yield graph.assertZeroHold()
     })
   })
 
@@ -355,7 +343,6 @@ describe('Basic', function () {
       yield services.assertBalance('test1.ledger1.', 'alice', '95')
       yield services.assertBalance('test1.ledger1.', 'bob', '105')
       yield services.assertBalance('test1.ledger1.', 'mark', '1000')
-      yield graph.assertZeroHold()
     })
 
     it('transfers the funds (by source amount)', function * () {
@@ -374,7 +361,6 @@ describe('Basic', function () {
       yield services.assertBalance('test1.ledger1.', 'alice', '95')
       yield services.assertBalance('test1.ledger1.', 'bob', '105')
       yield services.assertBalance('test1.ledger1.', 'mark', '1000')
-      yield graph.assertZeroHold()
     })
   })
 })

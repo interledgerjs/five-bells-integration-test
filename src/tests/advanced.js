@@ -156,7 +156,6 @@ describe('Advanced', function () {
       //    104.98    USD (round down)
       yield services.assertBalance('test2.ledger2.', 'bob', '104.98')
       yield services.assertBalance('test2.ledger2.', 'mark2', '995.02')
-      yield graph.assertZeroHold()
     })
 
     it('scale: low → high', function * () {
@@ -184,7 +183,6 @@ describe('Advanced', function () {
       //    104.9800  USD (round destination amount down)
       yield services.assertBalance('test2.ledger1.', 'bob', '104.98')
       yield services.assertBalance('test2.ledger1.', 'mark2', '995.02')
-      yield graph.assertZeroHold()
     })
 
     it('zero spread', function * () {
@@ -214,7 +212,6 @@ describe('Advanced', function () {
       //    110.0000 USD
       yield services.assertBalance('test2.ledger10.', 'bob', '110')
       yield services.assertBalance('test2.ledger10.', 'micah2', '990')
-      yield graph.assertZeroHold()
     })
 
     it('high spread', function * () {
@@ -241,7 +238,6 @@ describe('Advanced', function () {
       //    102.5    USD
       yield services.assertBalance('test2.ledger4.', 'bob', '102.5')
       yield services.assertBalance('test2.ledger4.', 'martin2', '997.5')
-      yield graph.assertZeroHold()
     })
 
     it('many hops', function * () {
@@ -292,7 +288,6 @@ describe('Advanced', function () {
       //    104.9699    USD (round destination down)
       yield services.assertBalance('test2.ledger7.', 'bob', '104.9699')
       yield services.assertBalance('test2.ledger7.', 'mike2', '995.0301')
-      yield graph.assertZeroHold()
     })
 
     it('rate check (by source amount)', function * () {
@@ -320,7 +315,6 @@ describe('Advanced', function () {
       //    108.77     USD (round destination amount down)
       yield services.assertBalance('test2.ledger8.', 'bob', '108.77')
       yield services.assertBalance('test2.ledger8.', 'mesrop2', '991.23')
-      yield graph.assertZeroHold()
     })
 
     it('rate check (by destination amount)', function * () {
@@ -348,7 +342,6 @@ describe('Advanced', function () {
       //    110.00     USD
       yield services.assertBalance('test2.ledger8.', 'bob', '110')
       yield services.assertBalance('test2.ledger8.', 'mesrop2', '990')
-      yield graph.assertZeroHold()
     })
 
     // this fails because of disabled quote-caching functionality, which will probably return in some form
@@ -435,7 +428,6 @@ describe('Advanced', function () {
       yield services.assertBalance('test2.ledger1.', 'mark2', '1950')
       yield services.assertBalance('test2.ledger2.', 'bob', '1048.1')
       yield services.assertBalance('test2.ledger2.', 'mark2', '51.9')
-      yield graph.assertZeroHold()
     })
 
     it('receiver rejects a payment with an expired packet', function * () {
@@ -465,7 +457,6 @@ describe('Advanced', function () {
       yield services.assertBalance('test2.ledger1.', 'mark2', '1000')
       yield services.assertBalance('test2.ledger2.', 'mark2', '1000')
       yield services.assertBalance('test2.ledger2.', 'bob', '100')
-      yield graph.assertZeroHold()
     })
   })
 })
