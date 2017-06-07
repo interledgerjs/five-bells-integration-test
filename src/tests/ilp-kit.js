@@ -69,7 +69,7 @@ function * peer () {
   }
 
   if (!success) {
-    throw new Error(`Could not peer ${kitManager.kits[0].API_HOSTNAME} with` +
+    throw new Error(`Could not peer ${kitManager.kits[0].API_HOSTNAME} with ` +
       `${kitManager.kits[1].API_HOSTNAME}`)
   } else {
     console.log('Peering succeeded')
