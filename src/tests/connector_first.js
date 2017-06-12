@@ -93,7 +93,6 @@ describe('Connector starts before ledgers', function () {
       //    105      USD
       yield services.assertBalance('test1.ledger2.', 'bob', '105')
       yield services.assertBalance('test1.ledger2.', 'mark', '995')
-      yield graph.assertZeroHold()
     })
   })
 })
