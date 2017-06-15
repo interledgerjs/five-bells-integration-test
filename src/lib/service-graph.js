@@ -77,12 +77,6 @@ class ServiceGraph {
     }
   }
 
-  * assertZeroHold () {
-    for (const ledgerPrefix in this.services.ledgers) {
-      yield this.services.assertBalance(ledgerPrefix, 'hold', '0')
-    }
-  }
-
   makeCredentials (ledgerPrefix, name) {
     const ledgerHost = this.services.ledgers[ledgerPrefix]
     return {

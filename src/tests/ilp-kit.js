@@ -271,7 +271,7 @@ describe('ILP Kit Test Suite -', function () {
           destination: {identifier: 'bob@wallet1.example:443'},
           quote: quote.body
         })
-      assertStatusCode(resp, 200)
+      assertStatusCode(resp, 204)
       yield kitManager.assertBalance(kitManager.kits[0], 'alice', '999')
       yield kitManager.assertBalance(kitManager.kits[0], 'bob', '1001')
     })
@@ -292,7 +292,7 @@ describe('ILP Kit Test Suite -', function () {
           destination: {identifier: 'bob@wallet2.example:443'},
           quote: quote.body
         })
-      assertStatusCode(resp, 200)
+      assertStatusCode(resp, 204)
 
       // Alice should have:
       //    1000      USD
