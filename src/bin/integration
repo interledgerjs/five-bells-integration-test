@@ -19,6 +19,7 @@ const dependencies = new DependencyManager({ defaultDependencies: {
   'ilp-plugin-virtual': 'interledgerjs/ilp-plugin-virtual'
 }})
 const commands = ['all', 'setup', 'test']
+const testSuites = ['index', 'advanced', 'connector_first', 'ilp-kit']
 const mocha = path.resolve(require.resolve('mocha'), '../bin/mocha')
 
 function mochaRun (testName) {
@@ -50,7 +51,10 @@ Promise.coroutine(function * () {
   }
   let tests = process.argv.slice(3)
   if (tests.length === 0) {
-    tests = ['index', 'advanced', 'connector_first', 'ilp-kit']
+    tests = testSuites
+  } else if (!tests.every((val) => testSuites.includes(val))) {
+    console.error(`Test suite "${tests}" does not exist.`)
+    usage()
   }
   if (command === 'all' || command === 'test') {
     while (tests.length && !code) {
