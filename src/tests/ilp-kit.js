@@ -263,7 +263,7 @@ describe('ILP Kit Test Suite -', function () {
         destinationAmount: 1
       })
 
-      const resp = yield request
+      yield request
         .put(`https://${config.API_HOSTNAME}:${config.API_PUBLIC_PORT}/api/payments/9efa70ec-08b9-11e6-b512-3e1d05defe78`)
         .auth('alice', 'alice')
         .set('Content-Type', 'application/json')
@@ -271,7 +271,6 @@ describe('ILP Kit Test Suite -', function () {
           destination: {identifier: 'bob@wallet1.example:443'},
           quote: quote.body
         })
-      assertStatusCode(resp, 204)
       yield kitManager.assertBalance(kitManager.kits[0], 'alice', '999')
       yield kitManager.assertBalance(kitManager.kits[0], 'bob', '1001')
     })
@@ -284,7 +283,7 @@ describe('ILP Kit Test Suite -', function () {
         destinationAmount: 5
       })
 
-      const resp = yield request
+      yield request
         .put(`https://${config.API_HOSTNAME}:${config.API_PUBLIC_PORT}/api/payments/aaaa70ec-08b9-11e6-b512-3e1d05defe78`)
         .auth('alice', 'alice')
         .set('Content-Type', 'application/json')
@@ -292,7 +291,6 @@ describe('ILP Kit Test Suite -', function () {
           destination: {identifier: 'bob@wallet2.example:443'},
           quote: quote.body
         })
-      assertStatusCode(resp, 204)
 
       // Alice should have:
       //    1000      USD
