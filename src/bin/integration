@@ -19,7 +19,7 @@ const dependencies = new DependencyManager({ defaultDependencies: {
   'ilp-plugin-virtual': 'interledgerjs/ilp-plugin-virtual'
 }})
 const commands = ['all', 'setup', 'test']
-const testSuites = ['index', 'advanced', 'connector_first', 'ilp-kit']
+const testSuites = ['index', 'advanced', 'connector_first', 'static_routes', 'ilp-kit']
 const mocha = path.resolve(require.resolve('mocha'), '../bin/mocha')
 
 function mochaRun (testName) {
@@ -39,7 +39,7 @@ function usage () {
   console.error('  all    # setup then test')
   console.error('  setup  # download five-bells services')
   console.error('  test   # run integration tests')
-  console.error('tests: space-separated list. Defaults to "index advanced connector_first ilp-kit"')
+  console.error('tests: space-separated list. Defaults to "index advanced connector_first static_routes ilp-kit"')
   process.exit(1)
 }
 
