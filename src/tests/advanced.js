@@ -413,8 +413,8 @@ describe('Advanced', function () {
         sourceAmount: '90',
         onOutgoingReject: (transfer, rejectionMessage) => {
           assert.deepEqual(rejectionMessage, {
-            code: 'T01',
-            name: 'Ledger Unreachable',
+            code: 'T04',
+            name: 'Insufficient Liquidity',
             message: 'destination transfer failed: Sender has insufficient funds.',
             triggered_by: 'test2.ledger2.mark2',
             triggered_at: rejectionMessage.triggered_at,
@@ -442,7 +442,7 @@ describe('Advanced', function () {
         overrideMemoParams: { expires_at: (new Date()).toISOString() }, // already expired
         onOutgoingReject: (transfer, rejectionMessage) => {
           assert.deepEqual(rejectionMessage, {
-            code: 'R01',
+            code: 'R00',
             name: 'Transfer Timed Out',
             message: 'got notification of transfer with expired packet',
             additional_info: {},

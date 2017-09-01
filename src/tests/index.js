@@ -131,7 +131,7 @@ describe('Basic', function () {
       } catch (_err) {
         err = _err
       }
-      assert.equal(err.name, 'NotAcceptedError')
+      assert.equal(err.name, 'InsufficientBalanceError')
       assert.equal(err.message, 'Sender has insufficient funds.')
       yield Promise.delay(2000)
 
