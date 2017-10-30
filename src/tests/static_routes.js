@@ -93,11 +93,11 @@ describe('Static Routes', function () {
       yield services.assertBalance('test3.ledger1.', 'alice', '95.0001')
       yield services.assertBalance('test3.ledger1.', 'mark', '1004.9999')
 
-      yield services.assertBalance('test3.ledger2.', 'mark', '995.0101')
-      yield services.assertBalance('test3.ledger2.', 'martin', '1004.9899')
+      yield services.assertBalance('test3.ledger2.', 'mark', '995.0102')
+      yield services.assertBalance('test3.ledger2.', 'martin', '1004.9898')
 
-      yield services.assertBalance('test3.ledger3.', 'martin', '995.0201')
-      yield services.assertBalance('test3.ledger3.', 'mary', '1004.9799')
+      yield services.assertBalance('test3.ledger3.', 'martin', '995.0202')
+      yield services.assertBalance('test3.ledger3.', 'mary', '1004.9798')
 
       yield services.assertBalance('test3.ledger4.', 'bob', '104.9697')
       yield services.assertBalance('test3.ledger4.', 'mary', '995.0303')

@@ -269,13 +269,13 @@ describe('Advanced', function () {
 
       // Mark should have:
       //   1000           USD
-      //  +   4.9899      USD (sent from Mia)
+      //  +   4.9898      USD (sent from Mia)
       //  -   0.009979799 USD (mia: spread/fee 5→6; 4.9899*0.002)
       //  ===================
-      //   1004.9799202   USD
-      //   1004.9799      USD (round destination amount down)
-      yield services.assertBalance('test2.ledger6.', 'mia2', '995.0201')
-      yield services.assertBalance('test2.ledger6.', 'mike2', '1004.9799')
+      //   1004.9798202   USD
+      //   1004.9798      USD (round destination amount down)
+      yield services.assertBalance('test2.ledger6.', 'mia2', '995.0202')
+      yield services.assertBalance('test2.ledger6.', 'mike2', '1004.9798')
 
       // Bob should have:
       //    100         USD
