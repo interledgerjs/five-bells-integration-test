@@ -58,7 +58,9 @@ Promise.coroutine(function * () {
   }
   if (command === 'all' || command === 'test') {
     while (tests.length && !code) {
-      code = code || (yield mochaRun(tests.shift()))
+      const testSuite = tests.shift()
+      if (testSuite === 'ilp-kit') continue // disable ILP kit tests until we upgrade to node v8
+      code = code || (yield mochaRun(testSuite))
     }
   }
   process.exit(code)
