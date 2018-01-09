@@ -8,8 +8,8 @@ test:
     - npm run lint
     - if git log -1 --pretty=%B | grep -qF "[skip tests]"; then true; else npm test; fi
   post:
-    - docker build -t interledgerjs/five-bells-integration-test:latest .
-    - docker tag interledgerjs/five-bells-integration-test:latest interledgerjs/five-bells-integration-test:"$(git describe --tags)"
+    # - docker build -t interledgerjs/five-bells-integration-test:latest .
+    # - docker tag interledgerjs/five-bells-integration-test:latest interledgerjs/five-bells-integration-test:"$(git describe --tags)"
 deployment:
   production:
     branch: master
@@ -18,6 +18,6 @@ deployment:
       - mv npmrc-env .npmrc
       - if [ $(npm show five-bells-integration-test version) != $(npm ls --depth=-1 2>/dev/null | head -1 | cut -f 1 -d " " | cut -f 2 -d @) ] ; then npm publish ; fi
       # Push Docker image tagged latest and tagged with commit descriptor
-      - sed "s/<AUTH>/${DOCKER_TOKEN}/" < "dockercfg-template" > ~/.dockercfg
-      - docker push interledgerjs/five-bells-integration-test:latest
-      - docker push interledgerjs/five-bells-integration-test:"$(git describe --tags)"
+      # - sed "s/<AUTH>/${DOCKER_TOKEN}/" < "dockercfg-template" > ~/.dockercfg
+      # - docker push interledgerjs/five-bells-integration-test:latest
+      # - docker push interledgerjs/five-bells-integration-test:"$(git describe --tags)"
