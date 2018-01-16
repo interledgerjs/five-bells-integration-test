@@ -1,6 +1,5 @@
 'use strict'
 const childProcess = require('child_process')
-const Promise = require('bluebird')
 
 /**
  * Utility function for spawning processes.

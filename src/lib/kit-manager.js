@@ -15,7 +15,6 @@ function readConfig (pathToConfig) {
 }
 
 class KitManager {
-
   constructor (services) {
     this.services = services
     this.kits = []
@@ -25,7 +24,7 @@ class KitManager {
     return Object.keys(this.kits).length
   }
 
-   /**
+  /**
    * Starts an ILP-kit. The kit starts a dedicated ledger and connector.
    * @param  {String}   pathToConfig [Configuration file (env.list) used to start the ilp kit]
    * @return {Promise}
@@ -113,10 +112,10 @@ class KitManager {
 
   * quote (kitConfig, user, data) {
     return yield request
-        .post(`https://${kitConfig.API_HOSTNAME}:${kitConfig.API_PUBLIC_PORT}/api/payments/quote`)
-        .auth(user, user)
-        .set('Content-Type', 'application/json')
-        .send(data)
+      .post(`https://${kitConfig.API_HOSTNAME}:${kitConfig.API_PUBLIC_PORT}/api/payments/quote`)
+      .auth(user, user)
+      .set('Content-Type', 'application/json')
+      .send(data)
   }
 }
 
