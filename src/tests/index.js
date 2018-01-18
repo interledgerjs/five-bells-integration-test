@@ -11,7 +11,7 @@ describe('Basic', function () {
   beforeEach(async function () {
     await Promise.all([
       startConnector({
-        ilpAddress: 'test1.mark',
+        ilpAddress: 'test.mark',
         accounts: {
           ledger1: { relation: 'child', assetScale: 4, options: {port: 3001, currencyScale: 4} },
           ledger2: { relation: 'child', assetScale: 4, options: {port: 3002, currencyScale: 4} },
@@ -19,7 +19,7 @@ describe('Basic', function () {
         }
       }),
       startConnector({
-        ilpAddress: 'test1.mary',
+        ilpAddress: 'test.mary',
         accounts: {
           mark: { relation: 'peer', assetScale: 4, options: {server: 'btp+ws://:secret@127.0.0.1:3100'} },
           ledger3: { relation: 'child', assetScale: 4, options: {port: 3003, currencyScale: 4} }

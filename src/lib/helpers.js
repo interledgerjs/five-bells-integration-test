@@ -23,7 +23,7 @@ module.exports = ({ services }) => {
         relation: 'peer',
         assetCode: 'USD',
         assetScale: 9,
-        plugin: account.relation === 'child' ? pluginMiniAccounts : pluginBTP
+        plugin: (account.options.listener || account.options.server) ? pluginBTP : pluginMiniAccounts
       }, account)
     })
     await services.startConnector(options.ilpAddress, options)
