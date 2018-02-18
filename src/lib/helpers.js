@@ -1,7 +1,7 @@
 'use strict'
 
 const path = require('path')
-const deps = path.resolve(__dirname, '../../integration-test/node_modules')
+const deps = path.resolve(process.cwd(), 'node_modules/')
 const pluginMiniAccounts = path.resolve(deps, 'ilp-plugin-mini-accounts')
 const pluginBTP = path.resolve(deps, 'ilp-plugin-btp')
 
