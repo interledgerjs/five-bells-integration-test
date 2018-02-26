@@ -26,7 +26,7 @@ module.exports = ({ services }) => {
         plugin: (account.options.listener || account.options.server) ? pluginBTP : pluginMiniAccounts
       }, account)
     })
-    await services.startConnector(options.ilpAddress, options)
+    await services.startConnector(options._name || options.ilpAddress, options)
   }
 
   const startSender = async (options) => {
