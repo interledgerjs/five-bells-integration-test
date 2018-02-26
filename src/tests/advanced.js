@@ -179,7 +179,7 @@ describe('Advanced', function () {
             receiveRoutes: false
           }
         },
-        routes: [{targetPrefix: 'test.mike.ledger2.', peerId: 'mia'}]
+        routes: [{targetPrefix: 'test.mike.ledger2', peerId: 'mia'}]
       }),
       startConnector({
         ilpAddress: 'test.mike',
