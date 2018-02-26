@@ -76,6 +76,9 @@ describe('Basic', function () {
     })
 
     it('transfers a payment with 3 steps', async function () {
+      // Give route broadcasts a chance to succeed
+      await new Promise((resolve) => setTimeout(resolve, 50))
+
       const res = await services.sendPayment({
         sender: this.sender1,
         receiver: this.receiver3,
