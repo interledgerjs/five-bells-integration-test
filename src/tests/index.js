@@ -26,6 +26,8 @@ describe('Basic', function () {
         }
       })
     ])
+    // Wait for routes to broadcast.
+    await new Promise((resolve) => setTimeout(resolve, 200))
 
     this.sender1 = await startSender({ server: 'btp+ws://:alice_secret@127.0.0.1:3001' })
     this.receiver1 = await startReceiver({ server: 'btp+ws://:bob_secret@127.0.0.1:3001' })

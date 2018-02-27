@@ -126,24 +126,12 @@ describe('Advanced', function () {
         }
       })
     ])
+    // Wait to send payment until the routes are all ready.
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
     // Send payment ledger1 → millie → mia → mike → ledger2
     const sender = await startSender({ server: 'btp+ws://:alice_secret@127.0.0.1:3001' })
     const receiver = await startReceiver({ server: 'btp+ws://:bob_secret@127.0.0.1:3002' })
-
-    const destinationAddress = (await services.ILDCP.fetch(receiver.sendData.bind(receiver))).clientAddress
-    // Wait to send payment until the routes are all ready.
-    let routesReady
-    for (let i = 0; i < 10; i++) {
-      const quote = await services.ilp.ILQP.quote(sender, {sourceAmount: '49999', destinationAddress})
-        .catch(() => {})
-      if (quote) {
-        routesReady = true
-        break
-      }
-      await new Promise((resolve) => setTimeout(resolve, 500))
-    }
-    assert(routesReady, 'route broadcasts must be complete')
 
     const res = await services.sendPayment({ sender, receiver, sourceAmount: '49999' })
     assert.equal(res.typeString, 'ilp_fulfill')
@@ -189,6 +177,7 @@ describe('Advanced', function () {
         }
       })
     ])
+    await new Promise((resolve) => setTimeout(resolve, 500))
 
     // Send payment ledger1 → millie → mia → mike → ledger2
     const sender = await startSender({ server: 'btp+ws://:alice_secret@127.0.0.1:3001' })
@@ -224,6 +213,7 @@ describe('Advanced', function () {
   it('parent connector', async function () {
     await Promise.all([
       startConnector({ // test.millie
+        _name: 'test.millie',
         accounts: {
           ledger1: { relation: 'child', assetScale: 4, options: {port: 3001, currencyScale: 4} },
           mike: { relation: 'parent', assetScale: 4, options: {server: 'btp+ws://:secret@127.0.0.1:3100'} }
