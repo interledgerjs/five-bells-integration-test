@@ -46,10 +46,25 @@ module.exports = ({ services }) => {
     await Promise.all(receivers.map((receiver) => receiver.disconnect()))
   }
 
+  const routesReady = async (sender, receiver) => {
+    const sendData = receiver.sendData.bind(receiver)
+    const destinationAddress = (await services.ILDCP.fetch(sendData)).clientAddress
+    // Wait to send payment until the routes are all ready.
+    for (let i = 0; i < 10; i++) {
+      const quote = await services.ilp.ILQP
+        .quote(sender, {sourceAmount: '123', destinationAddress})
+        .catch(() => {})
+      if (quote) return
+      await new Promise((resolve) => setTimeout(resolve, 500))
+    }
+    throw new Error('route broadcasts must be complete')
+  }
+
   return {
     startConnector,
     startSender,
     startReceiver,
-    stopPlugins
+    stopPlugins,
+    routesReady
   }
 }

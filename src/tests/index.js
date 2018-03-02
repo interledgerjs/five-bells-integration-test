@@ -5,7 +5,7 @@ const assert = require('assert')
 const ServiceManager = require('five-bells-service-manager')
 
 const services = new ServiceManager(path.resolve(process.cwd(), 'node_modules/'))
-const {startConnector, startSender, startReceiver, stopPlugins} = require('../lib/helpers')({services})
+const {startConnector, startSender, startReceiver, stopPlugins, routesReady} = require('../lib/helpers')({services})
 
 describe('Basic', function () {
   beforeEach(async function () {
@@ -26,9 +26,6 @@ describe('Basic', function () {
         }
       })
     ])
-    // Wait for routes to broadcast.
-    await new Promise((resolve) => setTimeout(resolve, 200))
-
     this.sender1 = await startSender({ server: 'btp+ws://:alice_secret@127.0.0.1:3001' })
     this.receiver1 = await startReceiver({ server: 'btp+ws://:bob_secret@127.0.0.1:3001' })
     this.receiver2 = await startReceiver({ server: 'btp+ws://:bob_secret@127.0.0.1:3002' })
@@ -79,7 +76,7 @@ describe('Basic', function () {
 
     it('transfers a payment with 3 steps', async function () {
       // Give route broadcasts a chance to succeed
-      await new Promise((resolve) => setTimeout(resolve, 100))
+      await routesReady(this.sender1, this.receiver3)
 
       const res = await services.sendPayment({
         sender: this.sender1,
