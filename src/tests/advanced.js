@@ -5,7 +5,7 @@ const assert = require('assert')
 const ServiceManager = require('five-bells-service-manager')
 
 const services = new ServiceManager(path.resolve(process.cwd(), 'node_modules/'))
-const {startConnector, startSender, startReceiver, stopPlugins} = require('../lib/helpers')({services})
+const {startConnector, startSender, startReceiver, stopPlugins, routesReady} = require('../lib/helpers')({services})
 
 describe('Advanced', function () {
   afterEach(async function () {
@@ -126,12 +126,13 @@ describe('Advanced', function () {
         }
       })
     ])
-    // Wait to send payment until the routes are all ready.
-    await new Promise((resolve) => setTimeout(resolve, 500))
 
     // Send payment ledger1 → millie → mia → mike → ledger2
     const sender = await startSender({ server: 'btp+ws://:alice_secret@127.0.0.1:3001' })
     const receiver = await startReceiver({ server: 'btp+ws://:bob_secret@127.0.0.1:3002' })
+
+    // Wait to send payment until the routes are all ready.
+    await routesReady(sender, receiver)
 
     const res = await services.sendPayment({ sender, receiver, sourceAmount: '49999' })
     assert.equal(res.typeString, 'ilp_fulfill')
@@ -177,11 +178,11 @@ describe('Advanced', function () {
         }
       })
     ])
-    await new Promise((resolve) => setTimeout(resolve, 500))
 
     // Send payment ledger1 → millie → mia → mike → ledger2
     const sender = await startSender({ server: 'btp+ws://:alice_secret@127.0.0.1:3001' })
     const receiver = await startReceiver({ server: 'btp+ws://:bob_secret@127.0.0.1:3002' })
+    await routesReady(sender, receiver)
     const res = await services.sendPayment({ sender, receiver, sourceAmount: '49999' })
     assert.equal(res.typeString, 'ilp_fulfill')
     services.assertBalance(receiver, '49697')
