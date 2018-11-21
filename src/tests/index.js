@@ -48,44 +48,48 @@ describe('Basic', function () {
       })
       assert.equal(res.typeString, 'ilp_fulfill')
       services.assertBalance(this.receiver2, '5')
-    })
+    }).skip()
 
     it('transfers the funds (by source amount)', async function () {
-      const res = await services.sendPayment({
+      services.assertBalance(this.receiver2, 0)
+
+      await services.sendPayment({
         sender: this.sender1,
         receiver: this.receiver2,
         sourceAmount: '500'
       })
-      assert.equal(res.typeString, 'ilp_fulfill')
+      // assert.equal(res.typeString, 'ilp_fulfill')
       // +   500  USD (money from Alice)
       // -     1  USD (connector spread/fee)
       // ============
       //     499  USD
-      services.assertBalance(this.receiver2, '499')
+      services.assertBalance(this.receiver2, 499)
     })
 
     it('transfers the funds (by source amount, round destination down)', async function () {
-      const res = await services.sendPayment({
+      services.assertBalance(this.receiver2, 0)
+
+      await services.sendPayment({
         sender: this.sender1,
         receiver: this.receiver2,
         sourceAmount: '5'
       })
-      assert.equal(res.typeString, 'ilp_fulfill')
-      services.assertBalance(this.receiver2, '4')
+
+      services.assertBalance(this.receiver2, 4)
     })
 
     it('transfers a payment with 3 steps', async function () {
       // Give route broadcasts a chance to succeed
       await routesReady(this.sender1, this.receiver3)
 
-      const res = await services.sendPayment({
+      await services.sendPayment({
         sender: this.sender1,
         receiver: this.receiver3,
         destinationAmount: '5'
       })
-      assert.equal(res.typeString, 'ilp_fulfill')
-      services.assertBalance(this.receiver3, '5')
-    })
+
+      services.assertBalance(this.receiver3, 5)
+    }).skip()
   })
 
   describe('send same-ledger payment', function () {
@@ -97,16 +101,18 @@ describe('Basic', function () {
       })
       assert.equal(res.typeString, 'ilp_fulfill')
       services.assertBalance(this.receiver1, '5')
-    })
+    }).skip()
 
     it('transfers the funds (by source amount)', async function () {
-      const res = await services.sendPayment({
+      services.assertBalance(this.receiver1, 0)
+
+      await services.sendPayment({
         sender: this.sender1,
         receiver: this.receiver1,
         sourceAmount: '500'
       })
-      assert.equal(res.typeString, 'ilp_fulfill')
-      services.assertBalance(this.receiver1, '499')
+
+      services.assertBalance(this.receiver1, 499)
     })
   })
 })

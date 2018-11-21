@@ -1,16 +1,46 @@
 # five-bells-integration-test
 
-> A module to help with testing Five Bells components against each other
+> A module to help with testing Interledger.js components against each other
 
 ## Introduction
 
-This module is used by the CI tests of the different Five Bells components. This module is installed with each component as a dev dependency and run during continuous integration. When run, it installs the other components and then tests them against the local working tree of the current component.
+This module is used by the CI tests of the different Interledger.js components. This module is installed with each component as a dev dependency and run during continuous integration. When run, it installs the other components and then tests them against the local working tree of the current component.
 
 ## Installation
 
 ```sh
 npm install --save-dev five-bells-integration-test
 ```
+
+## Process
+
+When run this test suite will instantiate instances of `ilp-connector` and configure it with instances of `ilp-plugin-mini-accounts` or `ilp-plugin-btp` (depending on whether the environment is configured as a server or client).
+
+It will then create necessary senders and receivers using the `STREAM` protocol and send payments through the connector(s).
+
+All services are loaded using the `five-bells-service-manager` which provides convenience APIs for interacting with the services.
+
+The `five-bells-integration-test-loader` is used to install and setup the test directory with the appropriate versions of dependencies. If the tests are triggered as part of the test run for a specific component then the working copy of that componenet is used. Dependencies will be fetched from the latest `master` branch OR from a branch with the same name as the component under test (if available).
+
+## Testing a component
+
+To run the integration tests for the current version of a component ensure that the `package.json` contains the following:
+
+```json
+  "scripts": {
+    "integration": "integration-loader && integration all"
+  },
+  "config": {
+    "five-bells-integration-test-loader": {
+      "module": "five-bells-integration-test",
+      "repo": "interledgerjs/five-bells-integration-test"
+    }
+  },
+```
+
+Running `npm run integration` will install the necessary components and run the tests.
+
+# TODO - Below is outdated
 
 ## Usage (with Docker)
 Get the Docker image for the Five Bells integration tests,
