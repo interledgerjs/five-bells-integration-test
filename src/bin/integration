@@ -7,7 +7,7 @@ const spawn = require('../util').spawn
 const command = process.argv[2]
 const dependencies = new DependencyManager({ defaultDependencies: {
   'ilp-connector': 'interledgerjs/ilp-connector',
-  'ilp': 'interledgerjs/ilp',
+  'ilp-protocol-stream': 'interledgerjs/ilp-protocol-stream',
   'ilp-plugin-mini-accounts': 'interledgerjs/ilp-plugin-mini-accounts',
   'ilp-plugin-btp': 'interledgerjs/ilp-plugin-btp'
 }})
