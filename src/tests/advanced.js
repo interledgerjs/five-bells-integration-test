@@ -249,7 +249,7 @@ describe('Advanced', function () {
     services.assertBalance(receiver, 49799)
   })
 
-  it('connector rejects payment when payment exceeds maximum debt', async function () {
+  it.skip('connector rejects payment when payment exceeds maximum debt', async function () {
     await startConnector({
       ilpAddress: 'test.mark',
       accounts: {
@@ -275,5 +275,5 @@ describe('Advanced', function () {
     services.assertBalance(receiver, 0)
     // TODO need to handle the stream error and propagate it down to this level
     // Currently throwing error in ilp-protocol-stream/connection/determineExchangeRate() in
-  }).skip()
+  })
 })

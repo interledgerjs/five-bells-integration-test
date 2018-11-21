@@ -40,7 +40,7 @@ describe('Basic', function () {
   })
 
   describe('send universal payment', function () {
-    it('transfers the funds (by destination amount)', async function () {
+    it.skip('transfers the funds (by destination amount)', async function () {
       const res = await services.sendPayment({
         sender: this.sender1,
         receiver: this.receiver2,
@@ -48,7 +48,7 @@ describe('Basic', function () {
       })
       assert.equal(res.typeString, 'ilp_fulfill')
       services.assertBalance(this.receiver2, '5')
-    }).skip()
+    })
 
     it('transfers the funds (by source amount)', async function () {
       services.assertBalance(this.receiver2, 0)
@@ -78,7 +78,7 @@ describe('Basic', function () {
       services.assertBalance(this.receiver2, 4)
     })
 
-    it('transfers a payment with 3 steps', async function () {
+    it.skip('transfers a payment with 3 steps', async function () {
       // Give route broadcasts a chance to succeed
       await routesReady(this.sender1, this.receiver3)
 
@@ -89,11 +89,11 @@ describe('Basic', function () {
       })
 
       services.assertBalance(this.receiver3, 5)
-    }).skip()
+    })
   })
 
   describe('send same-ledger payment', function () {
-    it('transfers the funds (by destination amount)', async function () {
+    it.skip('transfers the funds (by destination amount)', async function () {
       const res = await services.sendPayment({
         sender: this.sender1,
         receiver: this.receiver1,
@@ -101,7 +101,7 @@ describe('Basic', function () {
       })
       assert.equal(res.typeString, 'ilp_fulfill')
       services.assertBalance(this.receiver1, '5')
-    }).skip()
+    })
 
     it('transfers the funds (by source amount)', async function () {
       services.assertBalance(this.receiver1, 0)
